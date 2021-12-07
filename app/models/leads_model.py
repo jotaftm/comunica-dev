@@ -8,6 +8,10 @@ from sqlalchemy.sql.sqltypes import (
     DateTime,
     Boolean,
 )
+from sqlalchemy.orm import validates
+import re
+from app.exc.leads_exc import InvalidEmailFormat
+
 
 @dataclass
 class LeadModel(db.Model):
@@ -25,3 +29,14 @@ class LeadModel(db.Model):
     name = Column(String(100), nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     is_user = Column(Boolean, nullable=False)
+
+    @validates('email')
+    def validate_email(self, key, email):
+        try:
+            pattern = "/^[a-z0-9.]+@[a-z0-9]+\.[a-z]+\.([a-z]+)?$/i"
+            email_type = type(email) == str
+            correct_email_format = re.fullmatch(pattern, email)
+        except:
+            raise InvalidEmailFormat("O email deve ser do tipo string e deve conter @")
+        
+        return email

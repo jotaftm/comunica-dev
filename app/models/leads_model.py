@@ -21,7 +21,7 @@ class LeadModel(db.Model):
     __tablename__ = "leads"
 
     id = Column(Integer, primary_key=True)
-    email = Column(String(20), nullable=False, unique=True)
-    name = Column(String(200), nullable=False)
-    created_at = Column(DateTime, nullable=False)
+    email = Column(String(100), nullable=False, unique=True)
+    name = Column(String(100), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.now())
     is_user = Column(Boolean, nullable=False)

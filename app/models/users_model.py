@@ -15,7 +15,7 @@ class UserModel(db.Model):
     premium_at: datetime
     premium_expire: datetime
     type_user: str
-    address: dict
+    # address: dict
 
     __tablename__ = "users"
 
@@ -29,15 +29,15 @@ class UserModel(db.Model):
     premium_expire = Column(DateTime)
     type_user = Column(String, nullable=False)
 
-    adress_id = Column(
-      db.Integer, 
-      db.ForeignKey('addresses.id')
-    )
+    # adress_id = Column(
+    #   db.Integer, 
+    #   db.ForeignKey('addresses.id')
+    # )
 
-    address = db.relationship(
-      "AddressModel",
-      backref=db.backref("address", uselist=False)
-    )
+    # address = db.relationship(
+    #   "AddressModel",
+    #   backref=db.backref("address", uselist=False)
+    # )
 
 
     @property

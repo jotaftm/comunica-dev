@@ -24,4 +24,4 @@ class LeadModel(db.Model):
     email = Column(String(100), nullable=False, unique=True)
     name = Column(String(100), nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
-    is_user = Column(Boolean, nullable=False)
+    is_user = Column(Boolean, nullable=False, default=False)

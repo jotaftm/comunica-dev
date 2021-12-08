@@ -5,12 +5,6 @@ from http import HTTPStatus
 from sqlalchemy import exc
 
 
-def validate_request(payload):
-    for key, value in payload.items():
-        if key not in ['name', 'email'] or not len(payload) == 2 or not type(value) == str:
-            return {'error': 'Request body must contain email and name fields, and both must be string type'}, HTTPStatus.BAD_REQUEST
-
-
 def list_leads():
     leads_list = LeadModel.query.all()
     return jsonify(leads_list), 200
@@ -22,7 +16,9 @@ def create_lead():
 
         data = request.get_json()
 
-        validate_request(data)
+        for key, value in data.items():
+            if key not in ['name', 'email'] or not len(data) == 2 or not type(value) == str:
+                return {'error': 'Request body must contain only email and name fields, and both must be of type string'}, HTTPStatus.BAD_REQUEST
 
         normalized_data = {
             "name": data['name'].title(),

@@ -10,7 +10,7 @@ from sqlalchemy.sql.sqltypes import (
 )
 from sqlalchemy.orm import validates
 import re
-from app.exc.leads_exc import InvalidEmailFormat
+from app.exc.leads_exc import InvalidEmailFormatError
 
 
 @dataclass
@@ -32,6 +32,7 @@ class LeadModel(db.Model):
 
     @validates('email')
     def validate_email(self, key, email):
-        if "@" not in email:
-            raise InvalidEmailFormat('O email deve conter @')
+        pattern = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        if not re.fullmatch(pattern, email):
+            raise InvalidEmailFormatError('Email format must be name@domain.com or name@domain.com.xx')
         return email

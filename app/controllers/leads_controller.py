@@ -1,8 +1,14 @@
 from flask import request, jsonify, current_app
 from app.models.leads_model import LeadModel
-from app.exc.leads_exc import InvalidEmailFormat
+from app.exc.leads_exc import InvalidEmailFormatError
 from http import HTTPStatus
 from sqlalchemy import exc
+
+
+def validate_request(payload):
+    for key, value in payload.items():
+        if key not in ['name', 'email'] or not len(payload) == 2 or not type(value) == str:
+            return {'error': 'Request body must contain email and name fields, and both must be string type'}, HTTPStatus.BAD_REQUEST
 
 
 def list_leads():
@@ -16,9 +22,7 @@ def create_lead():
 
         data = request.get_json()
 
-        for key, value in data.items():
-            if key not in ['name', 'email'] or not len(data) == 2 or not type(value) == str:
-                return {'error': 'O corpo da requisição deve conter obrigatoriamente os campos name e email e ambos devem ser do tipo string'}
+        validate_request(data)
 
         normalized_data = {
             "name": data['name'].title(),
@@ -30,10 +34,10 @@ def create_lead():
         session.commit()
 
         return jsonify(new_lead), HTTPStatus.CREATED
-    except InvalidEmailFormat as e:
+    except InvalidEmailFormatError as e:
         return {'error': str(e)}, HTTPStatus.BAD_REQUEST
     except exc.IntegrityError:
-        return jsonify({'msg': 'Lead already exists'}), HTTPStatus.CONFLICT
+        return jsonify({'error': 'Lead already exists'}), HTTPStatus.CONFLICT
 
 
 def update_lead(id: int):
@@ -42,7 +46,7 @@ def update_lead(id: int):
     lead_to_update = LeadModel.query.filter_by(id=id).update(data)
 
     if not lead_to_update:
-        return {'error': 'lead not found'}, HTTPStatus.NOT_FOUND
+        return {'error': 'Lead does not exist'}, HTTPStatus.NOT_FOUND
 
     current_app.db.session.commit()
 
@@ -55,7 +59,7 @@ def get_lead_by_id(id: int):
     lead = LeadModel.query.get(id)
 
     if not lead:
-        return {'error': 'lead not found'}, HTTPStatus.NOT_FOUND
+        return {'error': 'Lead does not exist'}, HTTPStatus.NOT_FOUND
 
     return jsonify(lead)
 
@@ -64,8 +68,10 @@ def delete_lead(id: int):
     lead = LeadModel.query.get(id)
 
     if not lead:
-        return {'error': 'lead not found'}, HTTPStatus.NOT_FOUND
+        return {'error': 'Lead does not exist'}, HTTPStatus.NOT_FOUND
     
     current_app.db.session.delete(lead)
+
     current_app.db.session.commit()
+
     return "", HTTPStatus.NO_CONTENT

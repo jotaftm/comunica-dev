@@ -1,2 +1,2 @@
-class InvalidEmailFormat(Exception):
+class InvalidEmailFormatError(Exception):
     ...

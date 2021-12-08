@@ -1,6 +1,7 @@
 from flask import request, current_app, jsonify
 from http import HTTPStatus
 from app.exc.InvalidTypeError import InvalidTypeError
+from werkzeug.exceptions import NotFound
 from app.models.address_model import AddressModel
 import sqlalchemy
 import psycopg2
@@ -20,20 +21,25 @@ def create_address():
 
     except InvalidTypeError:
         return {'error': f'Invalid options. All values must be strings.'}, HTTPStatus.CONFLICT
+    except sqlalchemy.exc.IntegrityError as e:
+        if type(e.orig) == psycopg2.errors.NotNullViolation:
+            return {'error': 'All fields must be filled in!'}, HTTPStatus.CONFLICT
 
 
 def update_address(id: int):
     session = current_app.db.session
     data = request.get_json()
 
-    address = AddressModel.query.get(id)
-    if not address:
-        return {'msg': 'Address not found!'}, HTTPStatus.NOT_FOUND
+    try:
+        address = AddressModel.query.get_or_404(id)
 
-    address = AddressModel.query.filter_by(id=id).update(data)
-    session.commit()
+        address = AddressModel.query.filter_by(id=id).update(data)
+        session.commit()
 
-    address = AddressModel.query.get(id)
+        address = AddressModel.query.get(id)
+    
+    except NotFound:
+        return {'error': 'Address not found!'}, HTTPStatus.NOT_FOUND
 
     return jsonify(address), HTTPStatus.OK
 
@@ -41,13 +47,14 @@ def update_address(id: int):
 def delete_address(id: int):
     session = current_app.db.session
 
-    address = AddressModel.query.get(id)
+    try:
+        address = AddressModel.query.get_or_404(id)
 
-    if not address:
+        session.delete(address)
+        session.commit()
+
+    except NotFound:
         return {'error': 'Address not found!'}, HTTPStatus.NOT_FOUND
-
-    session.delete(address)
-    session.commit()
 
     return '', HTTPStatus.NO_CONTENT
 
@@ -58,9 +65,10 @@ def get_address():
     return jsonify(address_list)
     
 def get_address_by_id(id: int):
-    address = AddressModel.query.get(id)
+    try:
+        address = AddressModel.query.get_or_404(id)
 
-    if not address:
+    except NotFound:
         return {'error': 'Address not found!'}, HTTPStatus.NOT_FOUND
 
     return jsonify(address), HTTPStatus.OK

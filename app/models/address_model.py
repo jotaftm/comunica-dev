@@ -1,9 +1,10 @@
 from app.configs.database import db
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship, backref
 from dataclasses import dataclass
+from app.exc import InvalidDataTypeError, InvalidZipCodeLenError
 
-from app.exc.InvalidTypeError import InvalidTypeError
+from app.models.users_model import UserModel
 
 @dataclass
 class AddressModel(db.Model):
@@ -15,6 +16,7 @@ class AddressModel(db.Model):
     city: str
     state: str
     country: str
+    user: dict
     
     __tablename__ = 'addresses'
     
@@ -25,10 +27,23 @@ class AddressModel(db.Model):
     city = Column(String, nullable=False)
     state = Column(String, nullable=False)
     country = Column(String, nullable=False)
+    user_id = Column(Integer, db.ForeignKey('users.id'), nullable=False)
 
+    user = relationship(
+      'UserModel',
+      backref=backref('user', uselist=False)
+    )
 
     @validates('zip_code', 'address', 'number', 'city', 'state', 'country')
-    def validate_values(self, _, value):
+    def validate_values(self, key, value):
         if type(value) is not str:
-            raise InvalidTypeError
+            raise InvalidDataTypeError(key, type(value).__name__, "string")
+        if key == 'zip_code' and len(value) != 8:
+            raise InvalidZipCodeLenError('Zip code must have 8 digits.')
+
+        return value
+
+    @validates('user_id')
+    def validate_id(self, _, value):
+        user = UserModel.query.get_or_404(value)
         return value

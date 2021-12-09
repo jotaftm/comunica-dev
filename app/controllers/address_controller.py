@@ -1,8 +1,9 @@
 from flask import request, current_app, jsonify
 from http import HTTPStatus
-from app.exc.InvalidTypeError import InvalidTypeError
+from app.exc import InvalidDataTypeError
 from werkzeug.exceptions import NotFound
 from app.models.address_model import AddressModel
+from werkzeug.exceptions import NotFound
 import sqlalchemy
 import psycopg2
 
@@ -19,12 +20,13 @@ def create_address():
 
         return jsonify(address), HTTPStatus.CREATED
 
-    except InvalidTypeError:
-        return {'error': f'Invalid options. All values must be strings.'}, HTTPStatus.CONFLICT
     except sqlalchemy.exc.IntegrityError as e:
         if type(e.orig) == psycopg2.errors.NotNullViolation:
             return {'error': 'All fields must be filled in!'}, HTTPStatus.CONFLICT
-
+    except InvalidDataTypeError as e:
+        return {'error': str(e.message)}, e.code
+    except NotFound:
+        return {'error': 'Inexistent User ID.'}, HTTPStatus.BAD_REQUEST
 
 def update_address(id: int):
     session = current_app.db.session

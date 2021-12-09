@@ -2,7 +2,7 @@ from app.configs.database import db
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import validates, relationship, backref
 from dataclasses import dataclass
-from app.exc import InvalidDataTypeError, InvalidZipCodeLenError
+from app.exc import InvalidDataTypeError, InvalidZipCodeError
 
 from app.models.users_model import UserModel
 
@@ -39,7 +39,7 @@ class AddressModel(db.Model):
         if type(value) is not str:
             raise InvalidDataTypeError(key, type(value).__name__, "string")
         if key == 'zip_code' and len(value) != 8:
-            raise InvalidZipCodeLenError('Zip code must have 8 digits.')
+            raise InvalidZipCodeError(value)
 
         return value
 

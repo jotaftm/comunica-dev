@@ -37,8 +37,8 @@ class UserModel(db.Model):
     created_at = Column(DateTime, default=datetime.now())
     premium_at = Column(DateTime)
     premium_expire = Column(DateTime)
-    is_premium = Column(Boolean, nullable=False)
-    verified = Column(Boolean, nullable=False)
+    is_premium = Column(Boolean, nullable=False, default=False)
+    verified = Column(Boolean, nullable=False, default=False)
 
 
     @validates('email', 'name', 'cpf')

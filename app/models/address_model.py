@@ -16,6 +16,7 @@ class AddressModel(db.Model):
     city: str
     state: str
     country: str
+    user_id: int
     user: dict
     
     __tablename__ = 'addresses'

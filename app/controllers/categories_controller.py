@@ -13,7 +13,7 @@ def create_category():
 
     data = request.get_json()
 
-    new_category = CategoryModel(**normalized_data)
+    new_category = CategoryModel(**data)
         
     session.add(new_category)
     session.commit()

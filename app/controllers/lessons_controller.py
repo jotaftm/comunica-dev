@@ -1,12 +1,11 @@
 from flask import request, jsonify, current_app
 from app.models.lessons_model import LessonModel
 from http import HTTPStatus
-from sqlalchemy import exc
 
 
 def list_lessons():
     lessons_list = LessonModel.query.all()
-    return jsonify(lessons_list), 200
+    return jsonify(lessons_list)
 
 
 def create_lesson():

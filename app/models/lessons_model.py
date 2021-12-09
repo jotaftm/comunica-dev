@@ -18,7 +18,7 @@ class LessonModel(db.Model):
     description: str
     url_video: str
     is_premium: bool
-    category_id: int
+    category: dict
 
     __tablename__ = "lessons"
 

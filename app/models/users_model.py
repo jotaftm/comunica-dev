@@ -12,7 +12,7 @@ from sqlalchemy import (
 )
 
 from app.configs.database import db
-from app.exc import InvalidCPFError, InvalidEmailError, InvalidDataTypeError
+from app.exc import InvalidCPFError, InvalidEmailError, InvalidDataTypeError, InvalidPassword
 
 
 @dataclass
@@ -37,8 +37,8 @@ class UserModel(db.Model):
     created_at = Column(DateTime, default=datetime.now())
     premium_at = Column(DateTime)
     premium_expire = Column(DateTime)
-    is_premium = Column(Boolean, nullable=False)
-    verified = Column(Boolean, nullable=False)
+    is_premium = Column(Boolean, nullable=False, default=False)
+    verified = Column(Boolean, nullable=False, default=False)
 
 
     @validates('email', 'name', 'cpf')
@@ -70,4 +70,7 @@ class UserModel(db.Model):
 
 
     def check_password(self, password_to_compare):
-        return check_password_hash(self.password_hash, password_to_compare)
+        if not check_password_hash(self.password_hash, password_to_compare):
+            raise InvalidPassword
+        else:
+            return True

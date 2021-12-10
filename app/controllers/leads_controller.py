@@ -1,11 +1,11 @@
 from flask import request, jsonify, current_app
 from app.models.leads_model import LeadModel
-from app.exc.leads_exc import InvalidEmailFormatError
+from app.exc import InvalidEmailError
 from http import HTTPStatus
 from sqlalchemy import exc
 from app.services.send_leads_newsletter import send_newsletter
 from http import HTTPStatus
-from pdb import set_trace
+from sqlalchemy.exc import IntegrityError
 
 
 def newsletter_info():
@@ -28,7 +28,7 @@ def newsletter_info():
 
 def list_leads():
     leads_list = LeadModel.query.all()
-    return jsonify(leads_list), 200
+    return jsonify(leads_list)
 
 
 def create_lead():
@@ -51,9 +51,11 @@ def create_lead():
         session.commit()
 
         return jsonify(new_lead), HTTPStatus.CREATED
-    except InvalidEmailFormatError as e:
-        return {'error': str(e)}, HTTPStatus.BAD_REQUEST
-    except exc.IntegrityError:
+
+    except InvalidEmailError as e:
+        return {'error': e.message}, e.code
+
+    except IntegrityError:
         return jsonify({'error': 'Lead already exists'}), HTTPStatus.CONFLICT
 
 

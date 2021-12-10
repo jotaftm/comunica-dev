@@ -20,3 +20,15 @@ class InvalidZipCodeError(Exception):
     def __init__(self, value, code=400):
         self.message = f"Zip code must have 8 digits, but {len(value)} was sent."
         self.code = code
+
+
+class InvalidUser(Exception):
+    def __init__(self, code=404):
+        self.message = f"User is not found."
+        self.code = code
+
+
+class InvalidPassword(Exception):
+    def __init__(self, code=401):
+        self.message = f"Invalid password."
+        self.code = code

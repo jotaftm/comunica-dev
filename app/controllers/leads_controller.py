@@ -3,6 +3,27 @@ from app.models.leads_model import LeadModel
 from app.exc.leads_exc import InvalidEmailFormatError
 from http import HTTPStatus
 from sqlalchemy import exc
+from app.services.send_leads_newsletter import send_newsletter
+from http import HTTPStatus
+from pdb import set_trace
+
+
+def newsletter_info():
+    try:
+        leads_list = LeadModel.query.all()
+
+        data = request.get_json()
+
+        subject = data['subject']
+        message = data['message']
+        recipients_emails = [lead.email for lead in leads_list]
+        recipients_names =  [lead.name for lead in leads_list]
+
+        send_newsletter(subject, message, recipients_emails, recipients_names)
+        
+        return {'msg': 'Emails sent successfully'}, HTTPStatus.OK
+    except Exception:
+        return {'error': 'Failed to send emails to recipients'}, HTTPStatus.UNAUTHORIZED
 
 
 def list_leads():

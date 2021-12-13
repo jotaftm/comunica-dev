@@ -41,7 +41,7 @@ def create_basic_user():
                 "token_expire": datetime.today()
             }
         else:
-            return {'error': 'Failed to find user on databse'}, 401
+            return {'error': 'Failed to find user on database'}, 401
 
         new_user_token = UserTokenModel(**info_token)
 

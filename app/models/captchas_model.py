@@ -11,9 +11,7 @@ from app.configs.database import db
 
 @dataclass
 class CaptchaModel(db.Model):
-    id: int
     url_captcha: str
-    captcha_content: str
 
     __tablename__ = "captchas"
 

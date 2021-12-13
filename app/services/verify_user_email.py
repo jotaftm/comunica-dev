@@ -3,8 +3,21 @@ from email.mime.text import MIMEText
 import smtplib, ssl
 from os import environ
 from dotenv import load_dotenv
+import bitly_api
+
 
 load_dotenv()
+
+
+def generate_shorten_link(link):
+    BITLY_ACCESS_TOKEN = 'a99d3173938f3feb690ba2e88578c5ac1395bb5f'
+
+    connection = bitly_api.Connection(access_token=BITLY_ACCESS_TOKEN)
+
+    shorten_url = connection.shorten(link)
+
+    return shorten_url['url']
+
 
 def verify_user_email(user_name, user_email, user_token):
     email = MIMEMultipart()
@@ -15,11 +28,13 @@ def verify_user_email(user_name, user_email, user_token):
     email['To'] = user_email
     email['Subject'] = 'ComunicaDev - Verify your email'
 
-    # link = f'https://comunica-dev-api.herokuapp.com/api/users/validate/{user_token}'
+    BASE_URL = environ.get("BASE_URL")
 
-    link = f'http://127.0.0.1:5000/api/users/validate/{user_token}'
+    link = f'{BASE_URL}/users/validate/{user_token}'
 
-    message = f"Hello {user_name}! \n \n Please click on the link below to confirm your email: \n \n {link} \n \n Cheers! \n ComunicaDev Team"
+    shorten_link = generate_shorten_link(link)
+
+    message = f"Hello {user_name}! \n \n Please click on the link below to confirm your email: \n \n {shorten_link} \n \n Cheers! \n ComunicaDev Team"
 
     email.attach(MIMEText(message, 'plain'))
     context = ssl.create_default_context()

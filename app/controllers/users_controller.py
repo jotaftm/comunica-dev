@@ -3,12 +3,13 @@ from flask import request, current_app, jsonify
 from http import HTTPStatus
 from app.exc import InvalidCPFError, InvalidDataTypeError, InvalidEmailError, InvalidPassword
 from sqlalchemy.exc import IntegrityError
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from werkzeug.exceptions import NotFound
 
 from app.models.users_model import UserModel
 
 
+@jwt_required()
 def create_basic_user():
     try:
         session = current_app.db.session

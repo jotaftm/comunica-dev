@@ -6,5 +6,4 @@ bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
 
 bp_users.post('/basic')(create_basic_user)
 bp_users.post('/login')(user_login)
-bp_users.post('/<int:id>')(get_one_user)
-
+bp_users.get('')(get_one_user)

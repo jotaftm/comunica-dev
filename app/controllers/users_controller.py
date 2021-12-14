@@ -64,19 +64,13 @@ def user_login():
 
 
 @jwt_required()
-def get_one_user(id):
+def get_one_user():
     try:
         user_token = get_jwt_identity()
 
-        if user_token['id'] != id:
-            raise InvalidUserIdAccess
-
         found_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first_or_404()
-
-        return jsonify(found_user)
 
     except NotFound:
         return {"error": "User not found"}, HTTPStatus.NOT_FOUND
 
-    except InvalidUserIdAccess as e:
-        return {"error": e.message}, e.code
+    return jsonify(found_user), HTTPStatus.OK

@@ -1,7 +1,6 @@
-from os import access
 from flask import request, current_app, jsonify
 from http import HTTPStatus
-from app.exc import InvalidCPFError, InvalidDataTypeError, InvalidEmailError, InvalidPassword, InvalidUserIdAccess, InvalidUser, InvalidKey
+from app.exc import InvalidCPFError, InvalidDataTypeError, InvalidEmailError, InvalidPassword, InvalidUser, InvalidKey
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.exceptions import NotFound
@@ -84,7 +83,7 @@ def get_one_user(id):
 
 
 @jwt_required()
-def update_user(id):
+def update_user():
     try:
         session = current_app.db.session
 
@@ -94,10 +93,7 @@ def update_user(id):
         valid_keys = ["email",
                       "name",
                       "cpf"]
-
-        if user_token['id'] != id:
-            raise InvalidUserIdAccess
-        updated_user: UserModel = UserModel.query.filter_by(id=id).first()
+        updated_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first()
 
         if not updated_user:
             raise InvalidUser
@@ -106,16 +102,12 @@ def update_user(id):
             if key not in valid_keys:
                 raise InvalidKey(key)
             else:
-                setattr(UserModel, key, data[key])
+                setattr(updated_user, key, data[key])
             
         session.commit()
 
         found_user: UserModel = UserModel.query.filter_by(
-            id=id).first()
-
-    # todo enviar email de confirmação passando token
-
-        return jsonify(found_user), HTTPStatus.ACCEPTED
+            id=user_token['id']).first()
 
     except InvalidDataTypeError as e:
         return {"error": e.message}, e.code
@@ -128,12 +120,11 @@ def update_user(id):
 
     except InvalidUser as e:
         return {"error": e.message}, e.code
-
-    except InvalidUserIdAccess as e:
-        return {"error": e.message}, e.code
         
     except InvalidKey as e:
         return {"error": e.message}, e.code
 
     except IntegrityError:
         return {"error": "User already exists."}, HTTPStatus.CONFLICT
+    
+    return jsonify(found_user), HTTPStatus.ACCEPTED

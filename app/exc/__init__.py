@@ -1,6 +1,3 @@
-from pdb import set_trace
-
-
 class InvalidCPFError(Exception):
     def __init__(self, message="The CPF must be numbers only.", code=400):
         self.message = message
@@ -34,12 +31,6 @@ class InvalidUser(Exception):
 class InvalidPassword(Exception):
     def __init__(self, code=401):
         self.message = f"Invalid password."
-        self.code = code
-
-
-class InvalidUserIdAccess(Exception):
-    def __init__(self, code=401):
-        self.message = f"You do not have access to this user id."
         self.code = code
 
 

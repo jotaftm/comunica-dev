@@ -93,21 +93,28 @@ def update_user(id):
         data_keys = data.keys()
         valid_keys = ["email",
                       "name",
-                      "cpf"]
+                      "cpf",
+                      "password",
+                      "current_password"]
+        current_password = data.pop("current_password")
 
         if user_token['id'] != id:
             raise InvalidUserIdAccess
-        updated_user: UserModel = UserModel.query.filter_by(id=id).first()
+        current_user: UserModel = UserModel.query.filter_by(id=id).first()
 
-        if not updated_user:
+        if not current_user:
             raise InvalidUser
             
         for key in data_keys:
             if key not in valid_keys:
                 raise InvalidKey(key)
+            if key == "password":
+                if current_user.check_password(current_password):
+                    setattr(UserModel, key, data[key])
             else:
                 setattr(UserModel, key, data[key])
-            
+
+        session.add(current_user) 
         session.commit()
 
         found_user: UserModel = UserModel.query.filter_by(
@@ -133,6 +140,9 @@ def update_user(id):
         return {"error": e.message}, e.code
         
     except InvalidKey as e:
+        return {"error": e.message}, e.code
+
+    except InvalidPassword as e:
         return {"error": e.message}, e.code
 
     except IntegrityError:

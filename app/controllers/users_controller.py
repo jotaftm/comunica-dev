@@ -110,9 +110,9 @@ def update_user(id):
                 raise InvalidKey(key)
             if key == "password":
                 if current_user.check_password(current_password):
-                    setattr(UserModel, key, data[key])
+                    setattr(current_user, key, data[key])
             else:
-                setattr(UserModel, key, data[key])
+                setattr(current_user, key, data[key])
 
         session.add(current_user) 
         session.commit()

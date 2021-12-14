@@ -1,8 +1,7 @@
-from pdb import set_trace
 from os import access
 from flask import request, current_app, jsonify
 from http import HTTPStatus
-from app.exc import InvalidCPFError, InvalidDataTypeError, InvalidEmailError, InvalidPassword, InvalidUserIdAccess
+from app.exc import InvalidCPFError, InvalidDataTypeError, InvalidEmailError, InvalidPassword, InvalidUserIdAccess, InvalidUser, InvalidKey
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.exceptions import NotFound
@@ -46,11 +45,12 @@ def verify_user():
 def user_login():
     try:
         user_data = request.get_json()
-        
+
         email = user_data["email"]
         password = user_data["password"]
 
-        found_user: UserModel = UserModel.query.filter_by(email=email).first_or_404()
+        found_user: UserModel = UserModel.query.filter_by(
+            email=email).first_or_404()
 
         if found_user.check_password(password):
             access_token = create_access_token(identity=found_user)
@@ -71,7 +71,8 @@ def get_one_user(id):
         if user_token['id'] != id:
             raise InvalidUserIdAccess
 
-        found_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first_or_404()
+        found_user: UserModel = UserModel.query.filter_by(
+            id=user_token['id']).first_or_404()
 
         return jsonify(found_user)
 
@@ -80,3 +81,59 @@ def get_one_user(id):
 
     except InvalidUserIdAccess as e:
         return {"error": e.message}, e.code
+
+
+@jwt_required()
+def update_user(id):
+    try:
+        session = current_app.db.session
+
+        user_token = get_jwt_identity()
+        data = request.get_json()
+        data_keys = data.keys()
+        valid_keys = ["email",
+                      "name",
+                      "cpf"]
+
+        if user_token['id'] != id:
+            raise InvalidUserIdAccess
+        updated_user: UserModel = UserModel.query.filter_by(id=id).first()
+
+        if not updated_user:
+            raise InvalidUser
+            
+        for key in data_keys:
+            if key not in valid_keys:
+                raise InvalidKey(key)
+            else:
+                setattr(UserModel, key, data[key])
+            
+        session.commit()
+
+        found_user: UserModel = UserModel.query.filter_by(
+            id=id).first()
+
+    # todo enviar email de confirmação passando token
+
+        return jsonify(found_user), HTTPStatus.ACCEPTED
+
+    except InvalidDataTypeError as e:
+        return {"error": e.message}, e.code
+
+    except InvalidEmailError as e:
+        return {"error": e.message}, e.code
+
+    except InvalidCPFError as e:
+        return {"error": e.message}, e.code
+
+    except InvalidUser as e:
+        return {"error": e.message}, e.code
+
+    except InvalidUserIdAccess as e:
+        return {"error": e.message}, e.code
+        
+    except InvalidKey as e:
+        return {"error": e.message}, e.code
+
+    except IntegrityError:
+        return {"error": "User already exists."}, HTTPStatus.CONFLICT

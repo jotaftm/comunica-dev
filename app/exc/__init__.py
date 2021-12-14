@@ -1,3 +1,6 @@
+from pdb import set_trace
+
+
 class InvalidCPFError(Exception):
     def __init__(self, message="The CPF must be numbers only.", code=400):
         self.message = message
@@ -39,3 +42,8 @@ class InvalidUserIdAccess(Exception):
         self.message = f"You do not have access to this user id."
         self.code = code
 
+
+class InvalidKey(Exception):
+    def __init__(self, key, code=404):
+        self.message = f"The key {key} do not a valid key."
+        self.code = code

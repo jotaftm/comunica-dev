@@ -1,12 +1,19 @@
-from os import access
 from flask import request, current_app, jsonify
 from http import HTTPStatus
-from app.exc import InvalidCPFError, InvalidDataTypeError, InvalidEmailError, InvalidPassword
+from app.exc import (
+    InvalidCPFError, 
+    InvalidDataTypeError, 
+    InvalidEmailError, 
+    InvalidPassword, 
+    EmailVerifiedError
+)
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required
 from werkzeug.exceptions import NotFound
-
+from datetime import datetime, timedelta
+from app.services.verify_user_email import verify_user_email
 from app.models.users_model import UserModel
+from app.models.user_token_model import UserTokenModel
 
 
 @jwt_required()
@@ -17,10 +24,34 @@ def create_basic_user():
         data = request.get_json()
 
         new_user = UserModel(**data)
+<<<<<<< HEAD
+=======
+        
+>>>>>>> d5a6682b2ce79ed3bc78ead53f1db3fd1a578b69
         session.add(new_user)
         session.commit()
 
-    # todo enviar email de confirmação passando token
+        access_token = create_access_token(new_user, expires_delta=timedelta(minutes=30))
+
+        found_user = UserModel.query.filter_by(email=new_user.email).first()
+
+        if found_user:
+            info_token = {
+                "user_id": found_user.id,
+                "token": access_token,
+                "token_expire": datetime.today()
+            }
+        else:
+            return {'error': 'Failed to find user on database.'}, HTTPStatus.NOT_FOUND
+
+        new_user_token = UserTokenModel(**info_token)
+
+        session = current_app.db.session
+
+        session.add(new_user_token)
+        session.commit()
+
+        verify_user_email(new_user.name, new_user.email, access_token)
 
     except InvalidDataTypeError as e:
         return {"error": e.message}, e.code
@@ -37,9 +68,21 @@ def create_basic_user():
     return jsonify(new_user), HTTPStatus.CREATED
 
 
-# todo verificar token
-def verify_user():
-    ...
+def verify_user(token):
+    try:
+        token = UserTokenModel.query.filter_by(token=token).first()
+
+        if token:
+            info = {"verified": True}
+            user = UserModel.query.filter_by(id=token.user_id).update(info)
+            current_app.db.session.commit()
+
+        user_updated = UserModel.query.filter_by(id=token.user_id).first()
+    
+    except EmailVerifiedError as e:
+        return {"error": e.message}, e.code
+    
+    return jsonify(user_updated), HTTPStatus.OK
 
 
 def user_login():

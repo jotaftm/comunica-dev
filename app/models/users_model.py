@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 from dataclasses import dataclass
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import (
     Column,
@@ -39,6 +39,10 @@ class UserModel(db.Model):
     premium_expire = Column(DateTime)
     is_premium = Column(Boolean, nullable=False, default=False)
     verified = Column(Boolean, nullable=False, default=False)
+
+    #token = relationship('UserTokenModel', backref=db.backref('user', cascade='all, delete-orphan', uselist=False), uselist=False)
+
+    token = relationship('UserTokenModel', cascade='all, delete-orphan', uselist=False)
 
 
     @validates('email', 'name', 'cpf')

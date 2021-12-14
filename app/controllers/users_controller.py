@@ -24,10 +24,7 @@ def create_basic_user():
         data = request.get_json()
 
         new_user = UserModel(**data)
-<<<<<<< HEAD
-=======
         
->>>>>>> d5a6682b2ce79ed3bc78ead53f1db3fd1a578b69
         session.add(new_user)
         session.commit()
 

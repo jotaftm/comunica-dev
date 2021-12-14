@@ -32,3 +32,10 @@ class InvalidPassword(Exception):
     def __init__(self, code=401):
         self.message = f"Invalid password."
         self.code = code
+
+
+class InvalidUserIdAccess(Exception):
+    def __init__(self, code=401):
+        self.message = f"You do not have access to this user id."
+        self.code = code
+

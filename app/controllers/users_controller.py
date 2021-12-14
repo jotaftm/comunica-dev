@@ -1,15 +1,15 @@
+from pdb import set_trace
 from os import access
 from flask import request, current_app, jsonify
 from http import HTTPStatus
-from app.exc import InvalidCPFError, InvalidDataTypeError, InvalidEmailError, InvalidPassword
+from app.exc import InvalidCPFError, InvalidDataTypeError, InvalidEmailError, InvalidPassword, InvalidUserIdAccess
 from sqlalchemy.exc import IntegrityError
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.exceptions import NotFound
 
 from app.models.users_model import UserModel
 
 
-@jwt_required()
 def create_basic_user():
     try:
         session = current_app.db.session
@@ -60,4 +60,23 @@ def user_login():
         return {"error": "User not found"}, HTTPStatus.NOT_FOUND
 
     except InvalidPassword as e:
+        return {"error": e.message}, e.code
+
+
+@jwt_required()
+def get_one_user(id):
+    try:
+        user_token = get_jwt_identity()
+
+        if user_token['id'] != id:
+            raise InvalidUserIdAccess
+
+        found_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first_or_404()
+
+        return jsonify(found_user)
+
+    except NotFound:
+        return {"error": "User not found"}, HTTPStatus.NOT_FOUND
+
+    except InvalidUserIdAccess as e:
         return {"error": e.message}, e.code

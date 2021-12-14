@@ -1,4 +1,3 @@
-from os import access
 from flask import request, current_app, jsonify
 from http import HTTPStatus
 from app.exc import (
@@ -12,9 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required
 from werkzeug.exceptions import NotFound
 from datetime import datetime, timedelta
-
 from app.services.verify_user_email import verify_user_email
-
 from app.models.users_model import UserModel
 from app.models.user_token_model import UserTokenModel
 
@@ -42,7 +39,7 @@ def create_basic_user():
                 "token_expire": datetime.today()
             }
         else:
-            return {'error': 'Failed to find user on database'}, 401
+            return {'error': 'Failed to find user on database.'}, HTTPStatus.NOT_FOUND
 
         new_user_token = UserTokenModel(**info_token)
 
@@ -52,7 +49,6 @@ def create_basic_user():
         session.commit()
 
         verify_user_email(new_user.name, new_user.email, access_token)
-
 
     except InvalidDataTypeError as e:
         return {"error": e.message}, e.code
@@ -79,11 +75,11 @@ def verify_user(token):
             current_app.db.session.commit()
 
         user_updated = UserModel.query.filter_by(id=token.user_id).first()
-
-        return jsonify(user_updated), 200
     
     except EmailVerifiedError as e:
         return {"error": e.message}, e.code
+    
+    return jsonify(user_updated), HTTPStatus.OK
 
 
 def user_login():

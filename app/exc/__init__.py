@@ -35,6 +35,6 @@ class InvalidPassword(Exception):
 
 
 class EmailVerifiedError(Exception):
-    def __init__(self, code=401):
-        self.message = 'Failed to verify email'
+    def __init__(self,message="Failed to verify email", code=401):
+        self.message = message
         self.code = code

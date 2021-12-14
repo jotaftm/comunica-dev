@@ -35,6 +35,13 @@ class InvalidPassword(Exception):
         self.message = f"Invalid password."
         self.code = code
 
+
 class DataNotFound(Exception):
     def __init__(self, data):
         self.message = {"error": f'{data} not found.'}
+        
+
+class EmailVerifiedError(Exception):
+    def __init__(self,message="Failed to verify email", code=401):
+        self.message = message
+        self.code = code

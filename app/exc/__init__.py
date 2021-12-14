@@ -38,3 +38,9 @@ class InvalidKey(Exception):
     def __init__(self, key, code=404):
         self.message = f"The key {key} do not a valid key."
         self.code = code
+
+
+class EmailVerifiedError(Exception):
+    def __init__(self,message="Failed to verify email", code=401):
+        self.message = message
+        self.code = code

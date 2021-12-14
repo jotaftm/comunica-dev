@@ -9,7 +9,7 @@ from app.exc import (
     EmailVerifiedError
 )
 from sqlalchemy.exc import IntegrityError
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from werkzeug.exceptions import NotFound
 from datetime import datetime, timedelta
 
@@ -19,6 +19,7 @@ from app.models.users_model import UserModel
 from app.models.user_token_model import UserTokenModel
 
 
+@jwt_required()
 def create_basic_user():
     try:
         session = current_app.db.session

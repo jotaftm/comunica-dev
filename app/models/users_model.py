@@ -57,7 +57,7 @@ class UserModel(db.Model):
                 raise InvalidEmailError
 
         if key == 'cpf':
-            if not value.isnumeric():
+            if not value.isnumeric() or len(value) != 11:
                 raise InvalidCPFError
                 
         return value

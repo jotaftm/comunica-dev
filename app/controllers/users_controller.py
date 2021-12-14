@@ -8,7 +8,7 @@ from app.exc import (
     EmailVerifiedError
 )
 from sqlalchemy.exc import IntegrityError
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.exceptions import NotFound
 from datetime import datetime, timedelta
 from app.services.verify_user_email import verify_user_email
@@ -16,7 +16,6 @@ from app.models.users_model import UserModel
 from app.models.user_token_model import UserTokenModel
 
 
-@jwt_required()
 def create_basic_user():
     try:
         session = current_app.db.session
@@ -100,3 +99,16 @@ def user_login():
 
     except InvalidPassword as e:
         return {"error": e.message}, e.code
+
+
+@jwt_required()
+def get_one_user():
+    try:
+        user_token = get_jwt_identity()
+
+        found_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first_or_404()
+
+    except NotFound:
+        return {"error": "User not found"}, HTTPStatus.NOT_FOUND
+
+    return jsonify(found_user), HTTPStatus.OK

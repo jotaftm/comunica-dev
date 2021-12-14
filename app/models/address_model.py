@@ -5,9 +5,11 @@ from dataclasses import dataclass
 from app.exc import InvalidDataTypeError, InvalidZipCodeError
 
 from app.models.users_model import UserModel
+from app.services.helper import BaseModel
+
 
 @dataclass
-class AddressModel(db.Model):
+class AddressModel(db.Model, BaseModel):
 
     id: int
     zip_code: str

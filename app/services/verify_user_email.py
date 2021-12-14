@@ -10,7 +10,7 @@ load_dotenv()
 
 
 def generate_shorten_link(link):
-    BITLY_ACCESS_TOKEN = 'a99d3173938f3feb690ba2e88578c5ac1395bb5f'
+    BITLY_ACCESS_TOKEN = environ.get('BITLY_ACCESS_TOKEN')
 
     connection = bitly_api.Connection(access_token=BITLY_ACCESS_TOKEN)
 

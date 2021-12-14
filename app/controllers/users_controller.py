@@ -31,7 +31,7 @@ def create_basic_user():
         session.add(new_user)
         session.commit()
 
-        access_token = create_access_token(new_user, expires_delta=timedelta(minutes=5))
+        access_token = create_access_token(new_user, expires_delta=timedelta(minutes=30))
 
         found_user = UserModel.query.filter_by(email=new_user.email).first()
 

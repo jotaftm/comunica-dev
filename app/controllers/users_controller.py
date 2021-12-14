@@ -173,3 +173,23 @@ def update_user():
         return {"error": "User already exists."}, HTTPStatus.CONFLICT
     
     return jsonify(found_user), HTTPStatus.ACCEPTED
+
+
+@jwt_required()
+def delete_user():
+    try:
+        user_token = get_jwt_identity()
+        session = current_app.db.session
+
+        user_to_delete : UserModel = UserModel.query.filter_by(id=user_token['id']).first()
+
+        if not user_to_delete:
+            raise InvalidUser
+
+        session.delete(user_to_delete)
+        session.commit()
+        
+        return {"message": "Successfully deleted."}, HTTPStatus.OK
+        
+    except InvalidUser as e:
+        return {"error": e.message}, e.code

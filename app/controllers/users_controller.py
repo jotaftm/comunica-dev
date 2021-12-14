@@ -5,7 +5,9 @@ from app.exc import (
     InvalidDataTypeError, 
     InvalidEmailError, 
     InvalidPassword, 
-    EmailVerifiedError
+    EmailVerifiedError, 
+    InvalidUser,
+    InvalidKey,
 )
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -16,6 +18,7 @@ from app.models.users_model import UserModel
 from app.models.user_token_model import UserTokenModel
 
 
+@jwt_required()
 def create_basic_user():
     try:
         session = current_app.db.session
@@ -84,11 +87,12 @@ def verify_user(token):
 def user_login():
     try:
         user_data = request.get_json()
-        
+
         email = user_data["email"]
         password = user_data["password"]
 
-        found_user: UserModel = UserModel.query.filter_by(email=email).first_or_404()
+        found_user: UserModel = UserModel.query.filter_by(
+            email=email).first_or_404()
 
         if found_user.check_password(password):
             access_token = create_access_token(identity=found_user)
@@ -112,3 +116,51 @@ def get_one_user():
         return {"error": "User not found"}, HTTPStatus.NOT_FOUND
 
     return jsonify(found_user), HTTPStatus.OK
+
+
+@jwt_required()
+def update_user():
+    try:
+        session = current_app.db.session
+
+        user_token = get_jwt_identity()
+        data = request.get_json()
+        data_keys = data.keys()
+        valid_keys = ["email",
+                      "name",
+                      "cpf"]
+        updated_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first()
+
+        if not updated_user:
+            raise InvalidUser
+            
+        for key in data_keys:
+            if key not in valid_keys:
+                raise InvalidKey(key)
+            else:
+                setattr(updated_user, key, data[key])
+            
+        session.commit()
+
+        found_user: UserModel = UserModel.query.filter_by(
+            id=user_token['id']).first()
+
+    except InvalidDataTypeError as e:
+        return {"error": e.message}, e.code
+
+    except InvalidEmailError as e:
+        return {"error": e.message}, e.code
+
+    except InvalidCPFError as e:
+        return {"error": e.message}, e.code
+
+    except InvalidUser as e:
+        return {"error": e.message}, e.code
+        
+    except InvalidKey as e:
+        return {"error": e.message}, e.code
+
+    except IntegrityError:
+        return {"error": "User already exists."}, HTTPStatus.CONFLICT
+    
+    return jsonify(found_user), HTTPStatus.ACCEPTED

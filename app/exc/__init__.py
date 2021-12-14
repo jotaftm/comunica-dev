@@ -5,9 +5,13 @@ class InvalidCPFError(Exception):
 
 
 class InvalidEmailError(Exception):
-    def __init__(self, message="Email format must be name@domain.com or name@domain.com.xx", code=400):
+    def __init__(self, message="Email format must be name@domain.com or name@domain.com.xx"):
         self.message = message
-        self.code = code
+
+
+class LeadExistsError(Exception):
+    def __init__(self, message="Lead already exists."):
+        self.message = message
 
 
 class InvalidDataTypeError(Exception):

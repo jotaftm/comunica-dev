@@ -71,6 +71,9 @@ class UserModel(db.Model):
 
     @password.setter
     def password(self, password_to_hash):
+        if type(password_to_hash) is not str:
+            raise InvalidDataTypeError('password', type(password_to_hash).__name__, "string")
+        
         self.password_hash = generate_password_hash(password_to_hash)
 
 

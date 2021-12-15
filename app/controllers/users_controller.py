@@ -1,5 +1,6 @@
 from flask import request, current_app, jsonify
 from http import HTTPStatus
+from uuid import uuid4
 from app.exc import (
     InvalidCPFError, 
     InvalidDataTypeError, 
@@ -17,6 +18,7 @@ from datetime import datetime, timedelta
 from app.services.verify_user_email import verify_user_email
 from app.models.users_model import UserModel
 from app.models.user_token_model import UserTokenModel
+from app.services.reset_password import send_reset_password_code
 
 
 @jwt_required()
@@ -177,6 +179,44 @@ def update_user():
     return jsonify(found_user), HTTPStatus.ACCEPTED
 
 
+def confirm_password_reset():
+    data = request.get_json()
+
+    try:
+        if 'email' in data:
+            user = UserModel.query.filter_by(email=data['email']).first_or_404()
+
+            if user:
+                reset_code = str(uuid4())[0:5]
+                send_reset_password_code(user.name, user.email, reset_code)
+                info = {"reset_code": reset_code}
+                user_update = UserModel.query.filter_by(email=data['email']).update(info)
+                current_app.db.session.commit()
+
+                return {'msg': 'Mail sent to user successfully'}, HTTPStatus.OK
+
+    except NotFound:
+        return {"error": "Email provided does not exist"}, HTTPStatus.NOT_FOUND
+
+
+def reset_user_password():
+    valid_keys = ['email', 'reset_code', 'new_password']
+    data = request.get_json()
+
+    for key in data.keys():
+        if key not in valid_keys or not len(data) == 3:
+            return {'error': 'Wrong request'}, HTTPStatus.FORBIDDEN
+
+    user_to_update = UserModel.query.filter_by(reset_code=data['reset_code']).first_or_404(description='User not found')
+
+    if user_to_update:
+        session = current_app.db.session
+        setattr(user_to_update, 'password', data['new_password'])
+        session.commit()
+
+    return {'msg': f'User password reset successfully'}, HTTPStatus.OK
+
+    
 @jwt_required()
 def delete_user(id):
     try:

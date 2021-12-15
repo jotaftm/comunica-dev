@@ -1,9 +1,6 @@
 alembic==1.7.5
-<<<<<<< HEAD
 aniso8601==9.0.1
 appnope==0.1.2
-=======
->>>>>>> develop
 APScheduler==3.8.1
 bitly-api-py3==0.3
 captcha==0.3

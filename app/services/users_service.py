@@ -1,6 +1,7 @@
-from app.exc import DataNotFound, DataAlreadyRegistered, InvalidPassword, EmailVerifiedError, UnauthorizedAccessError
+from app.exc import DataNotFound, DataAlreadyRegistered, InvalidPassword, EmailVerifiedError, UnauthorizedAccessError, InvalidKey
 from app.models.users_model import UserModel
 from app.models.user_token_model import UserTokenModel
+from app.models.lessons_model import LessonModel
 from flask_restful import reqparse
 from flask import jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity
@@ -34,6 +35,9 @@ class UserService(BaseServices):
         user_check = UserModel.query.filter_by(email=data.email).first()
         if user_check:
             raise DataAlreadyRegistered('Email')
+
+        if 'user_role' in data.keys():
+            raise InvalidKey('user_role') 
 
         new_user: UserModel = UserModel(**data)
         new_user.save()
@@ -88,13 +92,21 @@ class UserService(BaseServices):
         email = data["email"]
         password = data["password"]
 
-        found_user: UserModel = UserModel.query.filter_by(
-            email=email).first()
+        found_user: UserModel = UserModel.query.filter_by(email=email).first()
         
         if not found_user:
             raise DataNotFound('User')
 
         if found_user.check_password(password):
+            if found_user.is_premium:
+                lessons = LessonModel.query.all()
+            else:
+                lessons = LessonModel.query.filter_by(is_premium=False).all()
+
+            found_user.lessons = lessons
+
+            found_user.save()
+
             access_token = create_access_token(identity=found_user)
             return {"token": access_token}, HTTPStatus.OK
         else:

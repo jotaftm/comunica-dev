@@ -43,3 +43,10 @@ def init_app(app: Flask) -> None:
     from app.views.captchas_view import CaptchaGenerateResource, CaptchaValidateResource
     api.add_resource(CaptchaGenerateResource, "/api/captchas/generate/<int:num_chars>", endpoint="CAPTCHA_GENERATE")
     api.add_resource(CaptchaValidateResource, "/api/captchas/validate", endpoint="CAPTCHA_VALIDATE")
+
+
+    from app.views.lessons_view import LessonResource, LessonRetrieveResource, LessonListByUserResource, LessonUpdateFinishedResource
+    api.add_resource(LessonResource, "/api/lessons", endpoint="LESSONS")
+    api.add_resource(LessonRetrieveResource, "/api/lessons/<int:lesson_id>", endpoint="LESSON_ID")
+    api.add_resource(LessonListByUserResource, "/api/lessons/personal", endpoint="LESSON_LIST_BY_USER")
+    api.add_resource(LessonUpdateFinishedResource, "/api/lessons/finished/<int:id>", endpoint="LESSON_UPDATE_FINISHED")

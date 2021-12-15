@@ -46,6 +46,8 @@ class CaptchaService(BaseServices):
         if input_user == found_captcha.captcha_content:
             access_token = create_access_token(found_captcha)
 
+            found_captcha.delete()
+
             return jsonify({"access_token": access_token}), HTTPStatus.OK
 
         return jsonify({"error": "Not authorized."}), HTTPStatus.BAD_REQUEST

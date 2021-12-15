@@ -18,9 +18,9 @@ class AddressResource(Resource):
         try:
             return make_response(AddressService.create())
         except InvalidDataTypeError as e:
-            return {'error': str(e.message)}, HTTPStatus.BAD_REQUEST
+            return e.message, e.code
         except InvalidZipCodeError as e:
-            return {'error': str(e.message)}, HTTPStatus.BAD_REQUEST
+            return e.message, e.code
 
 
 class AddressRetrieveResource(Resource):
@@ -30,7 +30,7 @@ class AddressRetrieveResource(Resource):
         try:
             return make_response(AddressService.get_by_id(address_id))
         except DataNotFound as e:
-            return e.message, HTTPStatus.NOT_FOUND
+            return e.message, e.code
     
 
     # @jwt_required()
@@ -38,7 +38,7 @@ class AddressRetrieveResource(Resource):
         try:
             return make_response(AddressService.update(address_id))
         except DataNotFound as e:
-            return e.message, HTTPStatus.NOT_FOUND
+            return e.message, e.code
 
     
     # @jwt_required()
@@ -46,4 +46,4 @@ class AddressRetrieveResource(Resource):
         try:
             return make_response(AddressService.delete(address_id))
         except DataNotFound as e:
-            return e.message, HTTPStatus.NOT_FOUND
+            return e.message, e.code

@@ -24,6 +24,7 @@ class UserModel(db.Model):
     created_at: datetime
     premium_at: datetime
     premium_expire: datetime
+    user_role: str
     is_premium: bool
     verified: bool
 
@@ -37,6 +38,7 @@ class UserModel(db.Model):
     created_at = Column(DateTime, default=datetime.now())
     premium_at = Column(DateTime)
     premium_expire = Column(DateTime)
+    user_role = Column(String, nullable=False, default='user')
     is_premium = Column(Boolean, nullable=False, default=False)
     verified = Column(Boolean, nullable=False, default=False)
     reset_code = Column(String)

@@ -1,6 +1,10 @@
 from flask import request, jsonify, current_app
 from app.models.lessons_model import LessonModel
 from http import HTTPStatus
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from werkzeug.exceptions import NotFound
+
+from app.models.users_model import UserModel
 
 
 def list_lessons():
@@ -56,3 +60,19 @@ def delete_lesson(id: int):
     current_app.db.session.commit()
 
     return "", HTTPStatus.NO_CONTENT
+
+
+@jwt_required()
+def list_my_lessons():
+    try:
+        user_logged = get_jwt_identity()
+
+        user_found: UserModel = UserModel.query.get_or_404(user_logged['id'])
+
+    except KeyError:
+        return {"error": "Invalid token."}, HTTPStatus.UNAUTHORIZED
+    
+    except NotFound:
+        return {"error": "User not found"}, HTTPStatus.NOT_FOUND
+
+    return jsonify(user_found.lessons), HTTPStatus.OK

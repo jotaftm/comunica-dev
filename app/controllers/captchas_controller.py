@@ -34,6 +34,9 @@ def validate_captcha():
         if input_user == found_captcha.captcha_content:
             access_token = create_access_token(found_captcha)
 
+            current_app.db.session.delete(found_captcha)
+            current_app.db.session.commit()
+
             return jsonify({"access_token": access_token}), HTTPStatus.OK
 
     except NotFound:

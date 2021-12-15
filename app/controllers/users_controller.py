@@ -16,6 +16,7 @@ from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.exceptions import NotFound
 from datetime import datetime, timedelta
+from app.models.lessons_model import LessonModel
 from app.services.verify_user_email import verify_user_email
 from app.models.users_model import UserModel
 from app.models.user_token_model import UserTokenModel
@@ -28,6 +29,9 @@ def create_basic_user():
         session = current_app.db.session
 
         data = request.get_json()
+
+        if 'user_role' in data.keys():
+            raise InvalidKey('user_role') 
     
         new_user = UserModel(**data)
         
@@ -65,6 +69,9 @@ def create_basic_user():
     except InvalidCPFError as e:
         return {"error": e.message}, e.code
 
+    except InvalidKey as e:
+        return {"error": e.message}, e.code
+
     except IntegrityError:
         return {"error": "User already exists."}, HTTPStatus.CONFLICT
 
@@ -99,6 +106,15 @@ def user_login():
             email=email).first_or_404()
 
         if found_user.check_password(password):
+            if found_user.is_premium:
+                lessons = LessonModel.query.all()
+            else:
+                lessons = LessonModel.query.filter_by(is_premium=False).all()
+
+            found_user.lessons = lessons
+
+            current_app.db.session.commit()
+
             access_token = create_access_token(identity=found_user)
             return {"token": access_token}, HTTPStatus.OK
 

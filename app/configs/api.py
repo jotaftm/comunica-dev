@@ -35,4 +35,9 @@ def init_app(app: Flask) -> None:
     api.add_resource(UserBasicResource, "/api/users/basic", endpoint="USERS_BASIC_NEW")
     api.add_resource(UserRetrieveResource, "/api/users/<int:user_id>", endpoint="USER_ID")
     api.add_resource(UserLoginResource, "/api/users/login", endpoint="USER_LOGIN")
-    api.add_resource(UserValidateTokenResource, "/validate/<token>", endpoint="USER_VALIDATE_TOKEN")
+    api.add_resource(UserValidateTokenResource, "/api/users/validate/<token>", endpoint="USER_VALIDATE_TOKEN")
+
+
+    from app.views.captchas_view import CaptchaGenerateResource, CaptchaValidateResource
+    api.add_resource(CaptchaGenerateResource, "/api/captchas/generate/<int:num_chars>", endpoint="CAPTCHA_GENERATE")
+    api.add_resource(CaptchaValidateResource, "/api/captchas/validate", endpoint="CAPTCHA_VALIDATE")

@@ -41,9 +41,9 @@ class UserModel(db.Model, BaseModel):
     is_premium = Column(Boolean, nullable=False, default=False)
     verified = Column(Boolean, nullable=False, default=False)
 
-    #token = relationship('UserTokenModel', backref=db.backref('user', cascade='all, delete-orphan', uselist=False), uselist=False)
-
     token = relationship('UserTokenModel', cascade='all, delete-orphan', uselist=False)
+    
+    lessons = relationship('LessonModel', secondary="user_lesson")
 
 
     @validates('email', 'name', 'cpf')
@@ -58,7 +58,7 @@ class UserModel(db.Model, BaseModel):
                 raise InvalidEmailError
 
         if key == 'cpf':
-            if not value.isnumeric():
+            if not value.isnumeric() or len(value) != 11:
                 raise InvalidCPFError
                 
         return value

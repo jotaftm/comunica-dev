@@ -9,7 +9,7 @@ from app.controllers.lessons_controller import (
 ) 
 from app.controllers.user_lesson_controller import update_finished
 
-bp = Blueprint('lessons_bp', __name__, url_prefix='lessons')
+bp = Blueprint('lessons_bp', __name__, url_prefix='/lessons')
 
 bp.post('')(create_lesson)
 bp.get('')(list_lessons)

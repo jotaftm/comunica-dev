@@ -8,6 +8,7 @@ from app.exc import (
     EmailVerifiedError, 
     InvalidUser,
     InvalidKey,
+    UnauthorizedAccessError,
 )
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -18,6 +19,7 @@ from app.models.users_model import UserModel
 from app.models.user_token_model import UserTokenModel
 
 
+@jwt_required()
 def create_basic_user():
     try:
         session = current_app.db.session
@@ -176,12 +178,15 @@ def update_user():
 
 
 @jwt_required()
-def delete_user():
+def delete_user(id):
     try:
-        user_token = get_jwt_identity()
+        user_logged = get_jwt_identity()
         session = current_app.db.session
 
-        user_to_delete : UserModel = UserModel.query.filter_by(id=user_token['id']).first()
+        if id != user_logged['id']:
+            raise UnauthorizedAccessError
+
+        user_to_delete : UserModel = UserModel.query.filter_by(id=id).first()
 
         if not user_to_delete:
             raise InvalidUser
@@ -189,7 +194,10 @@ def delete_user():
         session.delete(user_to_delete)
         session.commit()
         
-        return {"message": "Successfully deleted."}, HTTPStatus.OK
-        
     except InvalidUser as e:
         return {"error": e.message}, e.code
+
+    except UnauthorizedAccessError as e:
+        return {"error": e.message}, e.code
+
+    return {"message": "Successfully deleted."}, HTTPStatus.OK

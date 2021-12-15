@@ -1,5 +1,5 @@
 class InvalidCPFError(Exception):
-    def __init__(self, message="The CPF must be numbers only.", code=400):
+    def __init__(self, message="The CPF must be 11 numbers only.", code=400):
         self.message = message
         self.code = code
 

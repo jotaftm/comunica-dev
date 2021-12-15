@@ -25,7 +25,7 @@ def create_basic_user():
         session = current_app.db.session
 
         data = request.get_json()
-
+    
         new_user = UserModel(**data)
         
         session.add(new_user)

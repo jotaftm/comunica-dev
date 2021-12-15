@@ -41,6 +41,9 @@ class UserModel(db.Model):
     verified = Column(Boolean, nullable=False, default=False)
 
     token = relationship('UserTokenModel', cascade='all, delete-orphan', uselist=False)
+    
+    lessons = relationship('LessonModel', secondary="user_lesson")
+
 
     @validates('email', 'name', 'cpf')
     def validate_values(self, key, value):
@@ -54,7 +57,7 @@ class UserModel(db.Model):
                 raise InvalidEmailError
 
         if key == 'cpf':
-            if not value.isnumeric():
+            if not value.isnumeric() or len(value) != 11:
                 raise InvalidCPFError
                 
         return value

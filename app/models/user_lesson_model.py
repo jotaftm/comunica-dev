@@ -1,3 +1,4 @@
+from sqlalchemy.orm import backref, relationship
 from app.configs.database import db
 from dataclasses import dataclass
 from sqlalchemy.sql.schema import Column
@@ -21,3 +22,6 @@ class UserLessonModel(db.Model):
     user_id = Column(Integer, db.ForeignKey('users.id'), nullable=False)
     lesson_id = Column(Integer, db.ForeignKey('lessons.id') ,nullable=False)
     finished = Column(Boolean, nullable=False, default=False)
+
+    user = relationship("UserModel", backref=backref("user_lesson", cascade="all, delete-orphan"))
+    lesson = relationship("LessonModel", backref=backref("users_lessons", cascade="all, delete-orphan"))

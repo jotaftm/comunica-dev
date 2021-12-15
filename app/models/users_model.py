@@ -26,6 +26,7 @@ class UserModel(db.Model):
     premium_expire: datetime
     is_premium: bool
     verified: bool
+    reset_code: str
 
     __tablename__ = "users"
 
@@ -39,6 +40,7 @@ class UserModel(db.Model):
     premium_expire = Column(DateTime)
     is_premium = Column(Boolean, nullable=False, default=False)
     verified = Column(Boolean, nullable=False, default=False)
+    reset_code = Column(String)
 
     #token = relationship('UserTokenModel', backref=db.backref('user', cascade='all, delete-orphan', uselist=False), uselist=False)
 

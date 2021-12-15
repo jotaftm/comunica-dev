@@ -50,3 +50,9 @@ class UnauthorizedAccessError(Exception):
     def __init__(self,message="No authorization to access this feature.", code=401):
         self.message = message
         self.code = code
+
+
+class MandatoryKeyError(Exception):
+    def __init__(self, key, code=400):
+        self.message = f"The {key} key is mandatory."
+        self.code = code

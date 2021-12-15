@@ -10,6 +10,7 @@ from app.exc import (
     InvalidUser,
     InvalidKey,
     UnauthorizedAccessError,
+    MandatoryKeyError,
 )
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -135,20 +136,23 @@ def update_user():
                       "password",
                       "current_password"
                       ]
+
+        if not 'current_password' in data.keys():
+            raise MandatoryKeyError('current_password')
+        
         current_password = data.pop("current_password")
         updated_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first()
 
         if not updated_user:
             raise InvalidUser
-            
+
+        updated_user.check_password(current_password)
+
         for key in data_keys:
             if key not in valid_keys:
                 raise InvalidKey(key)
-            if key == "password":
-                if updated_user.check_password(current_password):
-                    setattr(updated_user, key, data[key])
-            else:
-                setattr(updated_user, key, data[key])
+
+            setattr(updated_user, key, data[key])
             
         session.commit()
 
@@ -173,10 +177,13 @@ def update_user():
     except InvalidPassword as e:
         return {"error": e.message}, e.code
 
+    except MandatoryKeyError as e:
+        return {"error": e.message}, e.code
+
     except IntegrityError:
         return {"error": "User already exists."}, HTTPStatus.CONFLICT
     
-    return jsonify(found_user), HTTPStatus.ACCEPTED
+    return jsonify(found_user), HTTPStatus.OK
 
 
 def confirm_password_reset():
@@ -216,7 +223,7 @@ def reset_user_password():
 
     return {'msg': f'User password reset successfully'}, HTTPStatus.OK
 
-    
+
 @jwt_required()
 def delete_user(id):
     try:

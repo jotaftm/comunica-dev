@@ -43,7 +43,8 @@ class UserModel(db.Model):
     #token = relationship('UserTokenModel', backref=db.backref('user', cascade='all, delete-orphan', uselist=False), uselist=False)
 
     token = relationship('UserTokenModel', cascade='all, delete-orphan', uselist=False)
-
+    
+    lessons = relationship('LessonModel', secondary="user_lesson")
 
     @validates('email', 'name', 'cpf')
     def validate_values(self, key, value):

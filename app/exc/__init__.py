@@ -41,6 +41,12 @@ class InvalidKey(Exception):
 
 
 class EmailVerifiedError(Exception):
-    def __init__(self,message="Failed to verify email", code=401):
+    def __init__(self,message="Failed to verify email.", code=401):
+        self.message = message
+        self.code = code
+
+
+class UnauthorizedAccessError(Exception):
+    def __init__(self,message="No authorization to access this feature.", code=401):
         self.message = message
         self.code = code

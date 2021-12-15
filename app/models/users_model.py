@@ -44,6 +44,7 @@ class UserModel(db.Model):
     
     lessons = relationship('LessonModel', secondary="user_lesson")
 
+
     @validates('email', 'name', 'cpf')
     def validate_values(self, key, value):
         email_pattern = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"

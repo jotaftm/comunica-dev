@@ -5,9 +5,9 @@ from app.controllers.lessons_controller import (
     update_lesson,
     get_lesson_by_id,
     delete_lesson,
-    list_my_lessons
+    list_my_lessons,
+    update_finished
 ) 
-from app.controllers.user_lesson_controller import update_finished
 
 bp = Blueprint('lessons_bp', __name__, url_prefix='/lessons')
 

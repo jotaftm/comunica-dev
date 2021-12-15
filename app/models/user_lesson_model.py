@@ -11,9 +11,7 @@ from sqlalchemy.sql.sqltypes import (
 @dataclass
 class UserLessonModel(db.Model):
 
-    id: int
-    user_id: int
-    lesson_id: str
+    lesson: str
     finished: bool
 
     __tablename__ = "user_lesson"

@@ -130,23 +130,35 @@ class UserService(BaseServices):
 
     @staticmethod
     def update(user_id) -> UserModel:
-        user = UserModel.query.get(user_id)
-        if not user:
-            raise DataNotFound('User')
+        user_token = get_jwt_identity()
+
+        if user_id != user_token['id']:
+            raise UnauthorizedAccessError
 
         parser = reqparse.RequestParser()
 
         parser.add_argument("email", type=str, store_missing=False)
         parser.add_argument("name", type=str, store_missing=False)
         parser.add_argument("cpf", type=str, store_missing=False)
+        parser.add_argument("password", type=str, store_missing=True)
+        parser.add_argument("current_password", type=str, store_missing=True)
 
         data = parser.parse_args(strict=True)
 
+        current_password = data.pop("current_password")
+
+        updated_user: UserModel = UserModel.query.filter_by(id=user_id).first()
+
+        if not updated_user:
+            raise DataNotFound('User')
+
+        updated_user.check_password(current_password)
+
         for key, value in data.items():
-            setattr(user, key, value)
+            setattr(updated_user, key, value)
         
-        user.save()
-        return jsonify(user), HTTPStatus.OK
+        updated_user.save()
+        return jsonify(updated_user), HTTPStatus.OK
 
     
     @staticmethod

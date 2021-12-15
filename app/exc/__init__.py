@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 class InvalidCPFError(Exception):
     def __init__(self):
-        self.message = {'error': 'The CPF must be numbers only.'}
+        self.message = {'error': 'CPF must be 11 numbers only.'}
         self.code = HTTPStatus.BAD_REQUEST
 
 
@@ -20,8 +20,8 @@ class InvalidDataTypeError(Exception):
 
 
 class InvalidZipCodeError(Exception):
-    def __init__(self, value):
-        self.message = {'error': f'Zip code must have 8 digits, but {len(value)} was sent.'}
+    def __init__(self):
+        self.message = {'error': 'Zip code must be 8 numbers only.'}
         self.code = HTTPStatus.BAD_REQUEST
 
 

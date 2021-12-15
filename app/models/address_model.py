@@ -39,10 +39,12 @@ class AddressModel(db.Model, BaseModel):
 
     @validates('zip_code', 'address', 'number', 'city', 'state', 'country')
     def validate_values(self, key, value):
-        if value is not str:
+        if type(value) is not str:
             raise InvalidDataTypeError(key, type(value).__name__, "string")
-        if key == 'zip_code' and len(value) != 8:
-            raise InvalidZipCodeError(value)
+            
+        if key == 'zip_code':
+            if not value.isnumeric() or len(value) != 8:
+                raise InvalidZipCodeError
 
         return value
 

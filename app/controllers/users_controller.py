@@ -18,7 +18,6 @@ from app.models.users_model import UserModel
 from app.models.user_token_model import UserTokenModel
 
 
-@jwt_required()
 def create_basic_user():
     try:
         session = current_app.db.session
@@ -128,7 +127,11 @@ def update_user():
         data_keys = data.keys()
         valid_keys = ["email",
                       "name",
-                      "cpf"]
+                      "cpf",
+                      "password",
+                      "current_password"
+                      ]
+        current_password = data.pop("current_password")
         updated_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first()
 
         if not updated_user:
@@ -137,6 +140,9 @@ def update_user():
         for key in data_keys:
             if key not in valid_keys:
                 raise InvalidKey(key)
+            if key == "password":
+                if updated_user.check_password(current_password):
+                    setattr(updated_user, key, data[key])
             else:
                 setattr(updated_user, key, data[key])
             
@@ -158,6 +164,9 @@ def update_user():
         return {"error": e.message}, e.code
         
     except InvalidKey as e:
+        return {"error": e.message}, e.code
+
+    except InvalidPassword as e:
         return {"error": e.message}, e.code
 
     except IntegrityError:

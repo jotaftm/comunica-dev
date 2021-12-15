@@ -9,6 +9,7 @@ from app.exc import (
     EmailVerifiedError, 
     InvalidUser,
     InvalidKey,
+    UnauthorizedAccessError,
 )
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -26,7 +27,7 @@ def create_basic_user():
         session = current_app.db.session
 
         data = request.get_json()
-
+    
         new_user = UserModel(**data)
         
         session.add(new_user)
@@ -130,7 +131,11 @@ def update_user():
         data_keys = data.keys()
         valid_keys = ["email",
                       "name",
-                      "cpf"]
+                      "cpf",
+                      "password",
+                      "current_password"
+                      ]
+        current_password = data.pop("current_password")
         updated_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first()
 
         if not updated_user:
@@ -139,6 +144,9 @@ def update_user():
         for key in data_keys:
             if key not in valid_keys:
                 raise InvalidKey(key)
+            if key == "password":
+                if updated_user.check_password(current_password):
+                    setattr(updated_user, key, data[key])
             else:
                 setattr(updated_user, key, data[key])
             
@@ -160,6 +168,9 @@ def update_user():
         return {"error": e.message}, e.code
         
     except InvalidKey as e:
+        return {"error": e.message}, e.code
+
+    except InvalidPassword as e:
         return {"error": e.message}, e.code
 
     except IntegrityError:
@@ -204,3 +215,29 @@ def reset_user_password():
         session.commit()
 
     return {'msg': f'User password reset successfully'}, HTTPStatus.OK
+
+    
+@jwt_required()
+def delete_user(id):
+    try:
+        user_logged = get_jwt_identity()
+        session = current_app.db.session
+
+        if id != user_logged['id']:
+            raise UnauthorizedAccessError
+
+        user_to_delete : UserModel = UserModel.query.filter_by(id=id).first()
+
+        if not user_to_delete:
+            raise InvalidUser
+
+        session.delete(user_to_delete)
+        session.commit()
+        
+    except InvalidUser as e:
+        return {"error": e.message}, e.code
+
+    except UnauthorizedAccessError as e:
+        return {"error": e.message}, e.code
+
+    return {"message": "Successfully deleted."}, HTTPStatus.OK

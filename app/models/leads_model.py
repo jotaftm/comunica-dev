@@ -11,10 +11,11 @@ from sqlalchemy.sql.sqltypes import (
 from sqlalchemy.orm import validates
 import re
 from app.exc import InvalidEmailError
+from app.services.helper import BaseModel
 
 
 @dataclass
-class LeadModel(db.Model):
+class LeadModel(db.Model, BaseModel):
     id: int
     email: str
     name: str
@@ -28,9 +29,9 @@ class LeadModel(db.Model):
     name = Column(String(100), nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     is_user = Column(Boolean, nullable=False, default=False)
-
+    
     @validates('email')
-    def validate_email(self, key, email):
+    def validate_email(self, _, email):
         pattern = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
         if not re.fullmatch(pattern, email):
             raise InvalidEmailError

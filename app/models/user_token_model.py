@@ -8,9 +8,11 @@ from sqlalchemy.sql.sqltypes import (
     String
 )
 
+from app.services.helper import BaseModel
+
 
 @dataclass
-class UserTokenModel(db.Model):
+class UserTokenModel(db.Model, BaseModel):
 
     id: int
     user_id: int

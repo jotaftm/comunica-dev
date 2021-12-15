@@ -1,8 +1,7 @@
 from http import HTTPStatus
-from app.exc import DataNotFound, InvalidEmailError, LeadExistsError
-from sqlalchemy.exc import IntegrityError
+from app.exc import DataAlreadyRegistered, DataNotFound, InvalidEmailError
 from flask_restful import Resource
-from flask import make_response, jsonify
+from flask import make_response
 
 from app.services.leads_service import LeadService
 
@@ -18,7 +17,7 @@ class LeadResource(Resource):
             return make_response(LeadService.create())
         except InvalidEmailError as e:
             return {'error': e.message}, HTTPStatus.BAD_REQUEST
-        except LeadExistsError as e:
+        except DataAlreadyRegistered as e:
             return {'error': e.message}, HTTPStatus.CONFLICT
 
 

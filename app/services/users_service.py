@@ -1,0 +1,153 @@
+from app.exc import DataNotFound, DataAlreadyRegistered, InvalidPassword, EmailVerifiedError, UnauthorizedAccessError
+from app.models.users_model import UserModel
+from app.models.user_token_model import UserTokenModel
+from flask_restful import reqparse
+from flask import jsonify
+from flask_jwt_extended import create_access_token, get_jwt_identity
+from datetime import datetime, timedelta
+from http import HTTPStatus
+from app.services.verify_user_email import verify_user_email
+from app.services.helper import BaseServices
+
+
+class UserService(BaseServices):
+    model = UserModel
+
+
+    @staticmethod
+    def create() -> UserModel:
+        parser = reqparse.RequestParser()
+
+        parser.add_argument("email", type=str, required=True)
+        parser.add_argument("name", type=str, required=True)
+        parser.add_argument("cpf", type=str, required=True)
+        parser.add_argument("password", type=str, required=True)
+
+        data = parser.parse_args(strict=True)
+
+        user_check = UserModel.query.filter_by(cpf=data.cpf).first()
+        if user_check:
+            raise DataAlreadyRegistered('CPF')
+        
+        user_check = UserModel.query.filter_by(email=data.email).first()
+        if user_check:
+            raise DataAlreadyRegistered('Email')
+
+        new_user: UserModel = UserModel(**data)
+        new_user.save()
+
+        access_token = create_access_token(new_user, expires_delta=timedelta(minutes=30))
+
+        found_user = UserModel.query.filter_by(email=new_user.email).first()
+
+        if found_user:
+            info_token = {
+                "user_id": found_user.id,
+                "token": access_token,
+                "token_expire": datetime.today()
+            }
+        else:
+            return {'error': 'Failed to find user on database.'}, HTTPStatus.NOT_FOUND
+
+        new_user_token: UserTokenModel = UserTokenModel(**info_token)
+
+        new_user_token.save()
+
+        verify_user_email(new_user.name, new_user.email, access_token)
+
+        return jsonify(new_user), HTTPStatus.CREATED
+
+
+    @staticmethod
+    def verify_user(token):
+        token = UserTokenModel.query.filter_by(token=token).first()
+
+        if token:
+            info = {"verified": True}
+            user = UserModel.query.filter_by(id=token.user_id).update(info)
+            user.save()
+            user_updated = UserModel.query.filter_by(id=token.user_id).first()
+
+            return jsonify(user_updated), HTTPStatus.OK
+        
+        else:
+            raise EmailVerifiedError        
+
+
+    @staticmethod
+    def user_login():
+        parser = reqparse.RequestParser()
+
+        parser.add_argument("email", type=str, store_missing=True)
+        parser.add_argument("password", type=str, store_missing=True)
+
+        data = parser.parse_args(strict=True)
+
+        email = data["email"]
+        password = data["password"]
+
+        found_user: UserModel = UserModel.query.filter_by(
+            email=email).first()
+        
+        if not found_user:
+            raise DataNotFound('User')
+
+        if found_user.check_password(password):
+            access_token = create_access_token(identity=found_user)
+            return {"token": access_token}, HTTPStatus.OK
+        else:
+            raise InvalidPassword
+
+
+    @staticmethod
+    def get_by_id(user_id):
+        user_token = get_jwt_identity()
+
+        if user_id != user_token['id']:
+            raise UnauthorizedAccessError
+
+        found_user: UserModel = UserModel.query.filter_by(id=user_id).first()
+
+        if not found_user:
+            raise DataNotFound('User')
+
+        return jsonify(found_user), HTTPStatus.OK
+
+
+    @staticmethod
+    def update(user_id) -> UserModel:
+        user = UserModel.query.get(user_id)
+        if not user:
+            raise DataNotFound('User')
+
+        parser = reqparse.RequestParser()
+
+        parser.add_argument("email", type=str, store_missing=False)
+        parser.add_argument("name", type=str, store_missing=False)
+        parser.add_argument("cpf", type=str, store_missing=False)
+
+        data = parser.parse_args(strict=True)
+
+        for key, value in data.items():
+            setattr(user, key, value)
+        
+        user.save()
+        return jsonify(user), HTTPStatus.OK
+
+    
+    @staticmethod
+    def delete(user_id) -> UserModel:
+        user_logged = get_jwt_identity()
+
+        if user_id != user_logged['id']:
+            raise UnauthorizedAccessError
+
+        user_to_delete : UserModel = UserModel.query.filter_by(id=user_id).first()
+
+        if not user_to_delete:
+            raise DataNotFound('User')
+
+        user_to_delete.delete()
+
+        return {"message": "Successfully deleted."}, HTTPStatus.OK
+

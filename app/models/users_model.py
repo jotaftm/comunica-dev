@@ -40,8 +40,6 @@ class UserModel(db.Model):
     is_premium = Column(Boolean, nullable=False, default=False)
     verified = Column(Boolean, nullable=False, default=False)
 
-    #token = relationship('UserTokenModel', backref=db.backref('user', cascade='all, delete-orphan', uselist=False), uselist=False)
-
     token = relationship('UserTokenModel', cascade='all, delete-orphan', uselist=False)
     
     lessons = relationship('LessonModel', secondary="user_lesson")

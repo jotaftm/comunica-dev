@@ -6,8 +6,10 @@ from flask import jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity
 from datetime import datetime, timedelta
 from http import HTTPStatus
+from uuid import uuid4
 from app.services.verify_user_email import verify_user_email
 from app.services.helper import BaseServices
+from app.services.reset_password import send_reset_password_code
 
 
 class UserService(BaseServices):
@@ -149,5 +151,51 @@ class UserService(BaseServices):
 
         user_to_delete.delete()
 
-        return {"message": "Successfully deleted."}, HTTPStatus.OK
+        return {'message': 'Successfully deleted.'}, HTTPStatus.OK
 
+
+    @staticmethod
+    def confirm_password_reset():
+        parser = reqparse.RequestParser()
+
+        parser.add_argument("email", type=str, store_missing=True)
+
+        data = parser.parse_args(strict=True)
+    
+        if 'email' in data:
+
+            user = UserModel.query.filter_by(email=data['email']).first()
+
+            if not user:
+                raise DataNotFound('Email')
+
+            reset_code = str(uuid4())[0:5]
+            send_reset_password_code(user.name, user.email, reset_code)
+            info = {"reset_code": reset_code}
+            user_update = UserModel.query.filter_by(email=data['email']).update(info)
+            
+            user_update.save()
+
+            return {'message': 'Mail sent to user successfully'}, HTTPStatus.OK
+
+
+    @staticmethod
+    def reset_user_password():        
+        parser = reqparse.RequestParser()
+
+        parser.add_argument("email", type=str, store_missing=True)
+        parser.add_argument("reset_code", type=str, store_missing=True)
+        parser.add_argument("new_password", type=str, store_missing=True)
+
+        data = parser.parse_args(strict=True)
+
+        user_to_update = UserModel.query.filter_by(reset_code=data['reset_code']).first()
+
+        if not user_to_update:
+            raise DataNotFound('User')
+
+        setattr(user_to_update, 'password', data['new_password'])
+        
+        user_to_update.save()
+
+        return {'message': 'User password reset successfully'}, HTTPStatus.OK

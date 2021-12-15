@@ -76,3 +76,21 @@ class UserLoginResource(Resource):
             return e.message, e.code
         except InvalidPassword as e:
             return e.message, e.code
+
+
+class UserConfirmPasswordResetResource(Resource):
+
+    def post(self):
+        try:
+            return make_response(UserService.confirm_password_reset())
+        except DataNotFound as e:
+            return e.message, e.code
+
+
+class UserPasswordResetResource(Resource):
+
+    def post(self):
+        try:
+            return make_response(UserService.reset_user_password())
+        except DataNotFound as e:
+            return e.message, e.code

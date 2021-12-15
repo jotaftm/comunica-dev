@@ -59,3 +59,9 @@ class UnauthorizedAccessError(Exception):
     def __init__(self):
         self.message = {'error': 'No authorization to access this feature.'}
         self.code = HTTPStatus.UNAUTHORIZED
+
+
+class MandatoryKeyError(Exception):
+    def __init__(self, key):
+        self.message = {'error': f'The {key} key is mandatory.'}
+        self.code = HTTPStatus.BAD_REQUEST

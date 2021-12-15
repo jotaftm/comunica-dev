@@ -40,6 +40,7 @@ class UserModel(db.Model, BaseModel):
     premium_expire = Column(DateTime)
     is_premium = Column(Boolean, nullable=False, default=False)
     verified = Column(Boolean, nullable=False, default=False)
+    reset_code = Column(String)
 
     token = relationship('UserTokenModel', cascade='all, delete-orphan', uselist=False)
     
@@ -71,6 +72,9 @@ class UserModel(db.Model, BaseModel):
 
     @password.setter
     def password(self, password_to_hash):
+        if type(password_to_hash) is not str:
+            raise InvalidDataTypeError('password', type(password_to_hash).__name__, "string")
+        
         self.password_hash = generate_password_hash(password_to_hash)
 
 

@@ -1,4 +1,3 @@
-from http import HTTPStatus
 from app.exc import DataNotFound
 from flask_restful import Resource
 from flask import make_response

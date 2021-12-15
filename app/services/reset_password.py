@@ -3,7 +3,6 @@ from email.mime.text import MIMEText
 import smtplib, ssl
 from os import environ
 from dotenv import load_dotenv
-from .verify_user_email import generate_shorten_link
 
 load_dotenv()
 

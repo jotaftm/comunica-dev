@@ -26,7 +26,6 @@ class UserModel(db.Model):
     premium_expire: datetime
     is_premium: bool
     verified: bool
-    reset_code: str
 
     __tablename__ = "users"
 

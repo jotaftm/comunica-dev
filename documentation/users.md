@@ -1,6 +1,6 @@
 # Usuários
 
-## Create User
+## Criar usuário
 
 ### Request
 
@@ -48,6 +48,54 @@
 	    "user_role": "user",
 	    "is_premium": false,
 	    "verified": false
+    }
+```
+
+#
+
+## Verificar usuário
+
+### Request
+
+`GET {url_base}/users/validate/<str:token>`
+
+##
+
+`Content-Type application/json`
+
+### Header:
+
+```json
+{}
+```
+
+### Body
+
+```json
+{}
+```
+
+### Responses
+
+```json
+    HTTP/1.1 200 OK
+
+    Content-Type	application/json
+    Content-Length	234
+    Server	        Werkzeug/2.0.2 Python/3.9.6
+    Date	        Wed, 15 Dec 2021 01:40:26 GMT
+
+    {
+	    "id": 1,
+	    "email": "comunicadevapi@mail.com",
+	    "name": "Jotaa",
+	    "cpf": "00000000000",
+	    "created_at": "Wed, 15 Dec 2021 19:16:04 GMT",
+	    "premium_at": null,
+	    "premium_expire": null,
+	    "user_role": "user",
+	    "is_premium": false,
+	    "verified": true
     }
 ```
 
@@ -126,6 +174,140 @@ Deve ser email e senha do user.
 ```
 
 #
+
+<<<<<<< HEAD
+
+=======
+
+## Receber dados do usuário logado
+
+### Request
+
+`GET /users/personal`
+
+##
+
+`Content-Type application/json`
+
+### Header:
+
+```json
+    Autorization: Bearer [token]
+```
+
+### Body
+
+```json
+{}
+```
+
+### Responses
+
+```json
+    HTTP/1.0 200 OK
+
+    Content-Type: application/json
+    Content-Length: 268
+    Server: Werkzeug/2.0.2 Python/3.9.6
+    Date: Wed, 15 Dec 2021 23:40:48 GMT
+
+    {
+	    "id": 1,
+	    "email": "comunicadevapi@mail.com",
+	    "name": "Jotaa",
+	    "cpf": "00000000000",
+	    "created_at": "Wed, 15 Dec 2021 19:16:04 GMT",
+	    "premium_at": null,
+	    "premium_expire": null,
+	    "user_role": "user",
+	    "is_premium": false,
+	    "verified": false
+    }
+```
+
+Se o token passado for inválido:
+
+```json
+    HTTP/1.0 401 UNAUTHORIZED
+
+    Content-Type: text/html; charset=utf-8
+    X-XSS-Protection: 0
+    Connection: close
+    Server: Werkzeug/2.0.2 Python/3.9.6
+    Date: Wed, 15 Dec 2021 23:36:09 GMT
+
+    {
+	    "error": "Invalid token."
+    }
+```
+
+#
+
+## Receber dados de um usuário específico
+
+### Request
+
+`GET /users/<int:id>`
+
+##
+
+`Content-Type application/json`
+
+### Header:
+
+```json
+    Autorization: Bearer [token]
+```
+
+### Body
+
+```json
+{}
+```
+
+### Responses
+
+```json
+    HTTP/1.0 200 OK
+
+    Content-Type: application/json
+    Content-Length: 268
+    Server: Werkzeug/2.0.2 Python/3.9.6
+    Date: Wed, 15 Dec 2021 23:40:48 GMT
+
+    {
+	    "id": 1,
+	    "email": "comunicadevapi@mail.com",
+	    "name": "Jotaa",
+	    "cpf": "00000000000",
+	    "created_at": "Wed, 15 Dec 2021 19:16:04 GMT",
+	    "premium_at": null,
+	    "premium_expire": null,
+	    "user_role": "user",
+	    "is_premium": false,
+	    "verified": false
+    }
+```
+
+Se o id fornecido na URL não for o mesmo do usuário em questão:
+
+```json
+    HTTP/1.0 500 INTERNAL SERVER ERROR
+
+    Content-Type: text/html; charset=utf-8
+    X-XSS-Protection: 0
+    Connection: close
+    Server: Werkzeug/2.0.2 Python/3.9.6
+    Date: Wed, 15 Dec 2021 23:36:09 GMT
+
+    {
+	    "error": "Unauthorized acces."
+    }
+```
+
+#
+
+> > > > > > > f124ee2fb0706e8a39d8409e05ef02d9cfba3200
 
 ## Alterar dados do usuário
 
@@ -233,11 +415,23 @@ Se o id fornecido na URL não for o mesmo do usuário em questão:
 
 #
 
+<<<<<<< HEAD
+
 ## Receber dados do usuário
 
 ### Request
 
 `GET /users/<int:id>`
+
+=======
+
+## Receber dados de todos usuários
+
+### Request
+
+`GET /users`
+
+> > > > > > > f124ee2fb0706e8a39d8409e05ef02d9cfba3200
 
 ##
 
@@ -246,7 +440,7 @@ Se o id fornecido na URL não for o mesmo do usuário em questão:
 ### Header:
 
 ```json
-    Autorization: Bearer [token]
+    Autorization: Bearer [token_adm]
 ```
 
 ### Body
@@ -264,25 +458,47 @@ Se o id fornecido na URL não for o mesmo do usuário em questão:
     Server: Werkzeug/2.0.2 Python/3.9.6
     Date: Wed, 15 Dec 2021 23:40:48 GMT
 
-    {
-	    "id": 1,
-	    "email": "comunicadevapi@mail.com",
-	    "name": "Jotaa",
-	    "cpf": "00000000000",
-	    "created_at": "Wed, 15 Dec 2021 19:16:04 GMT",
-	    "premium_at": null,
-	    "premium_expire": null,
-	    "user_role": "user",
-	    "is_premium": false,
-	    "verified": false
-    }
+    [
+        {
+            "id": 4,
+            "email": "luiz_federico@yahoo.com.br",
+            "name": "Luiz Federico",
+            "cpf": "88888888888",
+            "created_at": "Thu, 16 Dec 2021 19:51:33 GMT",
+            "premium_at": null,
+            "premium_expire": null,
+            "user_role": "user",
+            "is_premium": false,
+            "verified": true
+        },
+        {
+            "id": 1,
+            "email": "comunica@mail.com",
+            "name": "Comunica Dev",
+            "cpf": "00000000000",
+            "created_at": "Thu, 16 Dec 2021 19:51:33 GMT",
+            "premium_at": null,
+            "premium_expire": null,
+            "user_role": "admin",
+            "is_premium": true,
+            "verified": true
+        }
+    ]
 ```
+
+<<<<<<< HEAD
 
 Se o id fornecido na URL não for o mesmo do usuário em questão:
 
-```json
+````json
     HTTP/1.0 500 INTERNAL SERVER ERROR
 
+=======
+Se o token fornecido não pertencer à usuário com permissão admin:
+```json
+    HTTP/1.0 401 UNAUTHORIZED
+
+>>>>>>> f124ee2fb0706e8a39d8409e05ef02d9cfba3200
     Content-Type: text/html; charset=utf-8
     X-XSS-Protection: 0
     Connection: close
@@ -290,9 +506,9 @@ Se o id fornecido na URL não for o mesmo do usuário em questão:
     Date: Wed, 15 Dec 2021 23:36:09 GMT
 
     {
-	    "error": "Unauthorized acces."
+	    "error": "Exclusive resource for admin."
     }
-```
+````
 
 #
 
@@ -347,3 +563,119 @@ Se o id fornecido na URL não for o mesmo do usuário em enviado no token:
 	    "error": "No authorization to access this feature."
     }
 ```
+
+#
+
+## Enviar email para recuperar senha
+
+### Request
+
+`POST /users/confirm/email`
+
+##
+
+`Content-Type application/json`
+
+### Header:
+
+```json
+{}
+```
+
+### Body
+
+```json
+{
+  "email": "jotaftm@gmail.com"
+}
+```
+
+### Responses
+
+```json
+    HTTP/1.0 200 OK
+
+    Content-Type	application/json
+    Content-Length	234
+    Server	        Werkzeug/2.0.2 Python/3.9.6
+    Date	        Wed, 15 Dec 2021 01:40:26 GMT
+
+    {
+	    "msg": "Mail sent to user successfully"
+    }
+```
+
+Se o email fornecido não existir na base de dados:
+
+```json
+    HTTP/1.0 404 NOT FOUND
+
+    Content-Type: application/json
+    Content-Length: 60
+    Server: Werkzeug/2.0.2 Python/3.9.6
+    Date: Thu, 16 Dec 2021 00:10:21 GMT
+
+    {
+	    "error": "Email provided does not exist"
+    }
+```
+
+#
+
+## Definir nova senha
+
+### Request
+
+`POST /users/reset/password`
+
+##
+
+`Content-Type application/json`
+
+### Header:
+
+```json
+{}
+```
+
+### Body
+
+```json
+{
+  "email": "jotaftm@gmail.com",
+  "new_password": "123456",
+  "reset_code": "d50a2"
+}
+```
+
+### Responses
+
+```json
+    HTTP/1.0 200 OK
+
+    Content-Type	application/json
+    Content-Length	234
+    Server	        Werkzeug/2.0.2 Python/3.9.6
+    Date	        Wed, 15 Dec 2021 01:40:26 GMT
+
+    {
+	    "msg": "User password reset successfully"
+    }
+```
+
+Se passar outros campos na requisição:
+
+```json
+    HTTP/1.0 403 FORBIDDEN
+
+    Content-Type: application/json
+    Content-Length: 60
+    Server: Werkzeug/2.0.2 Python/3.9.6
+    Date: Thu, 16 Dec 2021 00:10:21 GMT
+
+    {
+	    "error": "Wrong request"
+    }
+```
+
+#

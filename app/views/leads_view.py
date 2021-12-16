@@ -11,7 +11,7 @@ from app.configs.decorators import verify_role_admin
 class LeadResource(Resource):
 
     @jwt_required()
-    @verify_role_admin()
+    @verify_role_admin
     def get(self):
         return make_response(LeadService.get_all())
 
@@ -28,7 +28,7 @@ class LeadResource(Resource):
 class LeadRetrieveResource(Resource):
 
     @jwt_required()
-    @verify_role_admin()
+    @verify_role_admin
     def get(self, lead_id):
         try:
             return make_response(LeadService.get_by_id(lead_id))
@@ -37,7 +37,7 @@ class LeadRetrieveResource(Resource):
     
 
     @jwt_required()
-    @verify_role_admin()
+    @verify_role_admin
     def patch(self, lead_id):
         try:
             return make_response(LeadService.update(lead_id))
@@ -54,6 +54,6 @@ class LeadRetrieveResource(Resource):
 
 class LeadSendEmailResource(Resource):
     @jwt_required()
-    @verify_role_admin()
+    @verify_role_admin
     def send(self):
         return make_response(LeadService.newsletter_info())

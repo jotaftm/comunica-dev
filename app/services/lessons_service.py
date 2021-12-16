@@ -8,6 +8,7 @@ from http import HTTPStatus
 from app.services.helper import BaseServices
 from flask_jwt_extended import get_jwt_identity
 from sqlalchemy.sql.elements import and_
+from app.exc import UnauthorizedAccessError
 
 
 class LessonService(BaseServices):
@@ -56,6 +57,21 @@ class LessonService(BaseServices):
 
 
     @staticmethod
+    def get_lesson_by_id(id: int):
+        user_logged = get_jwt_identity()
+
+        lesson: LessonModel = LessonModel.query.get(id)
+
+        if not user_logged['is_premium'] and lesson.is_premium:
+            raise UnauthorizedAccessError
+
+        if not lesson:
+            return {'error': 'Lesson does not exist'}, HTTPStatus.NOT_FOUND
+
+        return jsonify(lesson), HTTPStatus.OK
+
+
+    @staticmethod
     def list_my_lessons():
         user_logged = get_jwt_identity()
 
@@ -76,7 +92,7 @@ class LessonService(BaseServices):
             ).update(result) 
         
         if not user_lesson:
-            return {"error": "User and lesson doesn't match!"}, HTTPStatus.NOT_FOUND
+            return {"error": "User and lesson don't match!"}, HTTPStatus.NOT_FOUND
 
         user_lesson.save()
         

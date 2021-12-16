@@ -9,10 +9,10 @@ from werkzeug.exceptions import NotFound
 
 
 
-def generate_captcha(num_chars: int):
+def generate_captcha():
     session = current_app.db.session
 
-    captcha_content, url_captcha = generate_image_captcha(num_chars)
+    captcha_content, url_captcha = generate_image_captcha(6)
 
     new_captcha = CaptchaModel(captcha_content=captcha_content, url_captcha=url_captcha)
 

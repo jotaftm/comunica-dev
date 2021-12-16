@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 from dataclasses import dataclass
-from sqlalchemy.orm import backref, validates, relationship
+from sqlalchemy.orm import validates, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import (
     Column,
@@ -47,7 +47,7 @@ class UserModel(db.Model):
 
     token = relationship('UserTokenModel', cascade='all, delete-orphan', uselist=False)
 
-    lessons = relationship("LessonModel", secondary="user_lesson", viewonly=True)
+    lessons = relationship("LessonModel", secondary="user_lesson", uselist=True)
 
 
     @validates('email', 'name', 'cpf')

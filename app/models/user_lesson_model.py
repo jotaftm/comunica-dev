@@ -17,7 +17,6 @@ class UserLessonModel(db.Model, BaseModel):
 
     __tablename__ = "user_lesson"
 
-    id = Column(Integer, primary_key=True)
     user_id = Column(Integer, db.ForeignKey('users.id'), nullable=False)
     lesson_id = Column(Integer, db.ForeignKey('lessons.id') ,nullable=False)
     finished = Column(Boolean, nullable=False, default=False)

@@ -15,7 +15,7 @@ def generate_image_captcha(num_chars):
 
     text_captcha = ''.join(random.choice(all_chars) for _ in range(num_chars))
 
-    image_captcha = ImageCaptcha(width=40*num_chars, height=12*num_chars)
+    image_captcha = ImageCaptcha(width=45*num_chars, height=12*num_chars)
 
     image_captcha.generate(text_captcha)
 

@@ -32,9 +32,10 @@ To init the aplication run those commands in your terminal
 Below you will find the endpoints divided by the api sessions:
 
 
-- [Users](./documentantion/users.md)
-- [Address](./documentantion/address.md)
-- [Categories](./documentantion/categories.md)
-- [Leads](./documentantion/leads.md)
-- [lessons](./documentantion/lessons.md)
+- [Users](./documentation/users.md)
+- [Address](./documentation/address.md)
+- [Categories](./documentation/categories.md)
+- [Leads](./documentation/leads.md)
+- [lessons](./documentation/lessons.md)
+- [captchas](./documentation/captchas.md)
 

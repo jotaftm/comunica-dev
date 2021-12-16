@@ -12,14 +12,14 @@ from app.services.helper import BaseModel
 @dataclass
 class UserLessonModel(db.Model, BaseModel):
 
-    lesson: str
+    lesson: dict
     finished: bool
 
     __tablename__ = "user_lesson"
 
-    user_id = Column(Integer, db.ForeignKey('users.id'), nullable=False)
-    lesson_id = Column(Integer, db.ForeignKey('lessons.id') ,nullable=False)
+    user_id = Column(Integer, db.ForeignKey('users.id'), primary_key=True)
+    lesson_id = Column(Integer, db.ForeignKey('lessons.id') , primary_key=True)
     finished = Column(Boolean, nullable=False, default=False)
 
     user = relationship("UserModel", backref=backref("user_lesson", cascade="all, delete-orphan"))
-    lesson = relationship("LessonModel", backref=backref("users_lessons", cascade="all, delete-orphan"))
+    lesson = relationship("LessonModel", backref=backref("user_lesson", cascade="all, delete-orphan"))

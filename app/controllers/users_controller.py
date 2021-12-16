@@ -43,9 +43,19 @@ def create_basic_user():
 
         data = request.get_json()
 
-        if 'user_role' in data.keys():
-            raise InvalidKey('user_role') 
-    
+        invalid_keys = [
+            'user_role',
+            'created_at',
+            'premium_at',
+            'premium_expire',
+            'is_premium',
+            'verified',
+            'password_hash']
+
+        for key in data.keys():
+            if key in invalid_keys:
+                raise InvalidKey(key)
+
         new_user = UserModel(**data)
         
         session.add(new_user)
@@ -87,6 +97,9 @@ def create_basic_user():
 
     except IntegrityError:
         return {"error": "User already exists."}, HTTPStatus.CONFLICT
+
+    except TypeError:
+        return {"error": "Mandatory keys: email, name, cpf and password."}, HTTPStatus.BAD_REQUEST
 
     return jsonify(new_user), HTTPStatus.CREATED
 

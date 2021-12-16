@@ -20,6 +20,8 @@ class UserRetrieveResource(Resource):
             return make_response(UserService.get_by_id(user_id))
         except DataNotFound as e:
             return e.message, e.code
+        except UnauthorizedAccessError as e:
+            return e.message, e.code
     
 
     @jwt_required()
@@ -27,6 +29,10 @@ class UserRetrieveResource(Resource):
         try:
             return make_response(UserService.update(user_id))
         except DataNotFound as e:
+            return e.message, e.code
+        except UnauthorizedAccessError as e:
+            return e.message, e.code
+        except InvalidPassword as e:
             return e.message, e.code
 
     

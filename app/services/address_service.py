@@ -1,6 +1,7 @@
-from app.exc import DataNotFound
+from app.exc import DataNotFound, UnauthorizedAccessError
 from app.models.address_model import AddressModel
 from flask_restful import reqparse
+from flask_jwt_extended import get_jwt_identity
 from flask import jsonify
 from http import HTTPStatus
 from app.services.helper import BaseServices
@@ -12,6 +13,8 @@ class AddressService(BaseServices):
 
     @staticmethod
     def create() -> AddressModel:
+        user_logged = get_jwt_identity()
+
         parser = reqparse.RequestParser()
 
         parser.add_argument("zip_code", type=str, required=True)
@@ -24,6 +27,8 @@ class AddressService(BaseServices):
 
         data = parser.parse_args(strict=True)
 
+        data['user_id'] = user_logged['id']
+        
         new_address: AddressModel = AddressModel(**data)
         new_address.save()
 
@@ -32,9 +37,14 @@ class AddressService(BaseServices):
 
     @staticmethod
     def update(address_id) -> AddressModel:
+        user_logged = get_jwt_identity()
+
         address = AddressModel.query.get(address_id)
         if not address:
             raise DataNotFound('Address')
+
+        if address.user_id != user_logged['id'] and user_logged['user_role'] == 'user':
+            raise UnauthorizedAccessError
 
         parser = reqparse.RequestParser()
 
@@ -51,4 +61,35 @@ class AddressService(BaseServices):
             setattr(address, key, value)
         
         address.save()
+
         return jsonify(address), HTTPStatus.OK
+
+
+    @staticmethod
+    def get_by_id(address_id) -> AddressModel:
+        user_logged = get_jwt_identity()
+
+        address: AddressModel = AddressModel.query.get(address_id)
+        if not address:
+            raise DataNotFound('Address')
+
+        if address.user_id != user_logged['id'] and user_logged['user_role'] == 'user':
+            raise UnauthorizedAccessError
+
+        return jsonify(address), HTTPStatus.OK
+
+    
+    @staticmethod
+    def delete(address_id) -> AddressModel:
+        user_logged = get_jwt_identity()
+
+        address: AddressModel = AddressModel.query.get(address_id)
+        if not address:
+            raise DataNotFound('Address')
+
+        if address.user_id != user_logged['id'] and user_logged['user_role'] == 'user':
+            raise UnauthorizedAccessError
+
+        address.delete()
+
+        return '', HTTPStatus.NO_CONTENT

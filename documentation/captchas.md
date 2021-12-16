@@ -1,7 +1,8 @@
+# Códigos captchas
 ## Geração de Captcha
 
 ### Request
-`POST /captchas/generate/<int:num_chars>`
+`GET /captchas/generate`
 ##
 
 ### Header:

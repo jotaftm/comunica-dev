@@ -112,7 +112,7 @@
 
 ### Request
 
-`UPDATE /leads/<int:id>`
+`PATCH /leads/<int:id>`
 
 #
 

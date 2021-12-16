@@ -2,6 +2,7 @@ from flask import request, jsonify, current_app
 from sqlalchemy.sql.elements import and_
 from app.configs.decorators import verify_role_admin
 from app.exc import UnauthorizedAccessError
+from app.models.categories_model import CategoryModel
 from app.models.lessons_model import LessonModel
 from http import HTTPStatus
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -20,14 +21,23 @@ def list_lessons():
 @jwt_required()
 @verify_role_admin
 def create_lesson():
-    session = current_app.db.session
-
     data = request.get_json()
 
-    new_lesson = LessonModel(**data)
+    category_type = data.pop('category')
+
+    category_found = CategoryModel.query.filter_by(type=category_type).first()
+
+    if not category_found:
+        new_category = CategoryModel(type=category_type, description="")
+        current_app.db.session.add(new_category)
+        current_app.db.session.commit()
+
+    category_found = CategoryModel.query.filter_by(type=category_type).first()
+
+    new_lesson = LessonModel(category_id=category_found.id, **data)
         
-    session.add(new_lesson)
-    session.commit()
+    current_app.db.session.add(new_lesson)
+    current_app.db.session.commit()
 
     return jsonify(new_lesson), HTTPStatus.CREATED
 
@@ -36,6 +46,20 @@ def create_lesson():
 @verify_role_admin
 def update_lesson(id: int):
     data = request.get_json()
+
+    if 'category' in data.keys():
+        category_type = data.pop('category')
+
+        category_found = CategoryModel.query.filter_by(type=category_type).first()
+
+        if not category_found:
+            new_category = CategoryModel(type=category_type, description="")
+            current_app.db.session.add(new_category)
+            current_app.db.session.commit()
+
+        category_found = CategoryModel.query.filter_by(type=category_type).first()
+
+        data['category_id'] = category_found.id
 
     lesson_to_update = LessonModel.query.filter_by(id=id).update(data)
 

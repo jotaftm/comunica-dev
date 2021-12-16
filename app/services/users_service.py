@@ -140,7 +140,7 @@ class UserService(BaseServices):
         parser.add_argument("email", type=str, store_missing=False)
         parser.add_argument("name", type=str, store_missing=False)
         parser.add_argument("cpf", type=str, store_missing=False)
-        parser.add_argument("password", type=str, store_missing=True)
+        parser.add_argument("password", type=str, store_missing=False)
         parser.add_argument("current_password", type=str, store_missing=True)
 
         data = parser.parse_args(strict=True)

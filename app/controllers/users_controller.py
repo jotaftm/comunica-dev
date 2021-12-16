@@ -301,7 +301,7 @@ def delete_user(id):
 
         if not user_to_delete:
             raise InvalidUser
-
+            
         session.delete(user_to_delete)
         session.commit()
         

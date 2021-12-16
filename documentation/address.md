@@ -71,14 +71,28 @@ Caso algum dado esteja incorreto:
 
     [
 	    {
-	    	"id": 1,
-	    	"zip_code": "12345678",
-	    	"address": "Quadra 00 Casa",
-	    	"number": "9",
-	    	"city": "Brasília",
-	    	"state": "Distrito Foderal",
-	    	"country": "Brasil",
-	    	"user_id": 3
+	    	"id": 2,
+	    	"email": "comunica2@mail.com",
+	    	"name": "Comunica Dev",
+	    	"cpf": "00000000001",
+	    	"created_at": "Wed, 15 Dec 2021 19:16:04 GMT",
+	    	"premium_at": null,
+	    	"premium_expire": null,
+	    	"user_role": "user",
+	    	"is_premium": false,
+	    	"verified": false
+	    },
+	    {
+	    	"id": 3,
+	    	"email": "jota@mail.com",
+	    	"name": "Jota",
+	    	"cpf": "12345678900",
+	    	"created_at": "Wed, 15 Dec 2021 22:13:58 GMT",
+	    	"premium_at": null,
+	    	"premium_expire": null,
+	    	"user_role": "admin",
+	    	"is_premium": false,
+	    	"verified": false
 	    }
     ]
 ```

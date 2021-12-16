@@ -1,24 +1,29 @@
 # Usuários
+
 ## Create User
 
 ### Request
-`POST /users/basic`
-##
-`Content-Type	application/json`
 
+`POST /users/basic`
+
+##
+
+`Content-Type application/json`
 
 ### Header:
+
 ```json
     Autorization: Bearer [captcha_token]
 ```
 
 ### Body
+
 ```json
 {
-    "email": "user@mail.com" ,
-    "name": "user",
-    "cpf" :"00000000001",
-    "password": "123456"
+  "email": "user@mail.com",
+  "name": "user",
+  "cpf": "00000000001",
+  "password": "123456"
 }
 ```
 
@@ -45,21 +50,29 @@
 	    "verified": false
     }
 ```
+
 #
 
 ## Login
 
 ### Request
+
 `POST /users/login`
+
 ##
-`Content-Type	application/json`
+
+`Content-Type application/json`
+
 ### Header:
+
 ```json
-    {}
+{}
 ```
 
 ### Body
-Deve ser email e senha do user. 
+
+Deve ser email e senha do user.
+
 ```json
     Content-Type	application/json
 
@@ -97,6 +110,7 @@ Deve ser email e senha do user.
 	    "error": "Invalid password."
     }
 ```
+
 ```json
     HTTP/1.0 401 UNAUTHORIZED
 
@@ -110,34 +124,47 @@ Deve ser email e senha do user.
 	    "error": "Invalid password."
     }
 ```
+
 #
+
 ## Alterar dados do usuário
 
-### Request 
+### Request
+
 `PATCH /users/<int:id>`
+
 ##
-`Content-Type	application/json`
+
+`Content-Type application/json`
+
 ### Header:
+
 ```json
     Autorization: Bearer [token]
 ```
 
 ### Body
+
 ALERTA: Para qualquer mudança é necessário ser passado a **senha atual** do usuário como **current_password** do usuário.
+
 ##
+
 Todos os demais dados são opcionais.
+
 ```json
-    {
-        "email": "new_mail@mail.com",
-        "name": "new name",
-        "cpf": "00000000002",
-        "password": "654321",
-        "current_password": "123456"
-    }
+{
+  "email": "new_mail@mail.com",
+  "name": "new name",
+  "cpf": "00000000002",
+  "password": "654321",
+  "current_password": "123456"
+}
 ```
 
 ### Responses
+
 Se todos os dados estiverem corretos
+
 ```json
     HTTP/1.0 202 ACCEPTED
     Content-Type: application/json
@@ -157,7 +184,9 @@ Se todos os dados estiverem corretos
 	    "verified": false
     }
 ```
+
 Se o email já estiver cadastrado:
+
 ```json
     HTTP/1.0 404 NOT FOUND
 
@@ -170,7 +199,9 @@ Se o email já estiver cadastrado:
 	    "error": "User already exists."
     }
 ```
+
 Se a senha estiver incorreta:
+
 ```json
     HTTP/1.0 401 UNAUTHORIZED
 
@@ -183,10 +214,12 @@ Se a senha estiver incorreta:
 	    "error": "Invalid password."
     }
 ```
+
 Se o id fornecido na URL não for o mesmo do usuário em questão:
+
 ```json
     HTTP/1.0 500 INTERNAL SERVER ERROR
-    
+
     Content-Type: text/html; charset=utf-8
     X-XSS-Protection: 0
     Connection: close
@@ -194,34 +227,38 @@ Se o id fornecido na URL não for o mesmo do usuário em questão:
     Date: Wed, 15 Dec 2021 23:36:09 GMT
 
     {
-	    "error": "Unauthorized acces."
+	    "error": "Unauthorized access."
     }
 ```
+
 #
 
 ## Receber dados do usuário
+
 ### Request
 
 `GET /users/<int:id>`
-##
-`Content-Type	application/json`
 
+##
+
+`Content-Type application/json`
 
 ### Header:
+
 ```json
     Autorization: Bearer [token]
 ```
 
 ### Body
+
 ```json
-    {}
+{}
 ```
 
 ### Responses
 
 ```json
     HTTP/1.0 200 OK
-
     Content-Type: application/json
     Content-Length: 268
     Server: Werkzeug/2.0.2 Python/3.9.6
@@ -240,10 +277,12 @@ Se o id fornecido na URL não for o mesmo do usuário em questão:
 	    "verified": false
     }
 ```
+
 Se o id fornecido na URL não for o mesmo do usuário em questão:
+
 ```json
     HTTP/1.0 500 INTERNAL SERVER ERROR
-    
+
     Content-Type: text/html; charset=utf-8
     X-XSS-Protection: 0
     Connection: close
@@ -254,23 +293,29 @@ Se o id fornecido na URL não for o mesmo do usuário em questão:
 	    "error": "Unauthorized acces."
     }
 ```
+
 #
+
 ## Deletar usuário
+
 ### Request
 
 `DELETE /users/<int:id>`
-##
-`Content-Type	application/json`
 
+##
+
+`Content-Type application/json`
 
 ### Header:
+
 ```json
     Autorization: Bearer [token]
 ```
 
 ### Body
+
 ```json
-    {}
+{}
 ```
 
 ### Responses
@@ -287,10 +332,12 @@ Se o id fornecido na URL não for o mesmo do usuário em questão:
 	    "message": "Successfully deleted."
     }
 ```
+
 Se o id fornecido na URL não for o mesmo do usuário em enviado no token:
+
 ```json
     HTTP/1.0 401 UNAUTHORIZED
-    
+
     Content-Type: application/json
     Content-Length: 60
     Server: Werkzeug/2.0.2 Python/3.9.6

@@ -46,8 +46,8 @@ class UserModel(db.Model):
     addresses = relationship("AddressModel", backref="user", uselist=True)
 
     token = relationship('UserTokenModel', cascade='all, delete-orphan', uselist=False)
-    
-    lessons = relationship('LessonModel', secondary="user_lesson")
+
+    lessons = relationship("LessonModel", secondary="user_lesson", uselist=True)
 
 
     @validates('email', 'name', 'cpf')

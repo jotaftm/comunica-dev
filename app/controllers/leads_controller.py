@@ -1,10 +1,36 @@
 from flask import request, jsonify, current_app
+from flask_jwt_extended.view_decorators import jwt_required
+from app.configs.decorators import verify_role_admin
 from app.models.leads_model import LeadModel
 from app.exc import InvalidEmailError
+from http import HTTPStatus
+from app.services.send_leads_newsletter import send_newsletter
 from http import HTTPStatus
 from sqlalchemy.exc import IntegrityError
 
 
+@jwt_required()
+@verify_role_admin
+def newsletter_info():
+    try:
+        leads_list = LeadModel.query.all()
+
+        data = request.get_json()
+
+        subject = data['subject']
+        message = data['message']
+        recipients_emails = [lead.email for lead in leads_list]
+        recipients_names =  [lead.name for lead in leads_list]
+
+        send_newsletter(subject, message, recipients_emails, recipients_names)
+        
+        return {'msg': 'Emails sent successfully'}, HTTPStatus.OK
+    except Exception:
+        return {'error': 'Failed to send emails to recipients'}, HTTPStatus.UNAUTHORIZED
+
+
+@jwt_required()
+@verify_role_admin
 def list_leads():
     leads_list = LeadModel.query.all()
     return jsonify(leads_list)
@@ -38,6 +64,8 @@ def create_lead():
         return jsonify({'error': 'Lead already exists'}), HTTPStatus.CONFLICT
 
 
+@jwt_required()
+@verify_role_admin
 def update_lead(id: int):
     data = request.get_json()
 
@@ -53,6 +81,8 @@ def update_lead(id: int):
     return jsonify(lead_updated)
 
 
+@jwt_required()
+@verify_role_admin
 def get_lead_by_id(id: int):
     lead = LeadModel.query.get(id)
 

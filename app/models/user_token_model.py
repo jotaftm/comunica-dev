@@ -1,6 +1,7 @@
 from app.configs.database import db
 from dataclasses import dataclass
 from datetime import datetime
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
     DateTime,

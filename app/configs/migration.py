@@ -8,5 +8,7 @@ def init_app(app: Flask):
    from app.models.categories_model import CategoryModel
    from app.models.lessons_model import LessonModel
    from app.models.user_token_model import UserTokenModel
+   from app.models.user_lesson_model import UserLessonModel
+   from app.models.captchas_model import CaptchaModel
 
    Migrate(app, app.db)

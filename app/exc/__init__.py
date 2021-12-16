@@ -1,5 +1,5 @@
 class InvalidCPFError(Exception):
-    def __init__(self, message="The CPF must be numbers only.", code=400):
+    def __init__(self, message="The CPF must be 11 numbers only.", code=400):
         self.message = message
         self.code = code
 
@@ -31,4 +31,28 @@ class InvalidUser(Exception):
 class InvalidPassword(Exception):
     def __init__(self, code=401):
         self.message = f"Invalid password."
+        self.code = code
+
+
+class InvalidKey(Exception):
+    def __init__(self, key, code=404):
+        self.message = f"The key {key} do not a valid key."
+        self.code = code
+
+
+class EmailVerifiedError(Exception):
+    def __init__(self,message="Failed to verify email.", code=401):
+        self.message = message
+        self.code = code
+
+
+class UnauthorizedAccessError(Exception):
+    def __init__(self,message="No authorization to access this feature.", code=401):
+        self.message = message
+        self.code = code
+
+
+class MandatoryKeyError(Exception):
+    def __init__(self, key, code=400):
+        self.message = f"The {key} key is mandatory."
         self.code = code

@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 from dataclasses import dataclass
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import (
     Column,
@@ -24,6 +24,7 @@ class UserModel(db.Model):
     created_at: datetime
     premium_at: datetime
     premium_expire: datetime
+    user_role: str
     is_premium: bool
     verified: bool
 
@@ -37,8 +38,16 @@ class UserModel(db.Model):
     created_at = Column(DateTime, default=datetime.now())
     premium_at = Column(DateTime)
     premium_expire = Column(DateTime)
+    user_role = Column(String, nullable=False, default='user')
     is_premium = Column(Boolean, nullable=False, default=False)
     verified = Column(Boolean, nullable=False, default=False)
+    reset_code = Column(String)
+
+    addresses = relationship("AddressModel", backref="user", uselist=True)
+
+    token = relationship('UserTokenModel', cascade='all, delete-orphan', uselist=False)
+
+    lessons = relationship("LessonModel", secondary="user_lesson", uselist=True)
 
 
     @validates('email', 'name', 'cpf')
@@ -53,7 +62,7 @@ class UserModel(db.Model):
                 raise InvalidEmailError
 
         if key == 'cpf':
-            if not value.isnumeric():
+            if not value.isnumeric() or len(value) != 11:
                 raise InvalidCPFError
                 
         return value
@@ -66,6 +75,9 @@ class UserModel(db.Model):
 
     @password.setter
     def password(self, password_to_hash):
+        if type(password_to_hash) is not str:
+            raise InvalidDataTypeError('password', type(password_to_hash).__name__, "string")
+        
         self.password_hash = generate_password_hash(password_to_hash)
 
 

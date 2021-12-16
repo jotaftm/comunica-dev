@@ -17,7 +17,9 @@ IMPORTANT: Don't forget populate your `.env` file according the `.env.example` f
 # 
 ## Install
 After cloning the project and accessing the directory, create and start your virtual environment:
+    
     python -m venv venv --upgrade-deps
+    
     source venv/bin/activate
 
 To init the aplication run those commands in your terminal and after that start your virtual enviroment:

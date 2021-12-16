@@ -1,10 +1,11 @@
+# Leads
 ## Criar Leads
 
 ### Request
 
 `POST /leads`
 
-#
+
 
 `Content-Type application/json`
 
@@ -50,10 +51,57 @@
         "error": "Lead already exists"
     }, 409 (CONFLICT)
 ```
+#
+## Enviar newsletter
 
+### Request
+
+`POST /leads/newsletter`
+
+
+`Content-Type application/json`
+
+### Header:
+
+```json
+{}
+```
+
+### Body
+
+```json
+{
+	"subject": "Newsletter ComunicaDev",
+	"message": "Discover all the possibilities being a developer working abroad"
+}
+```
+
+### Responses
+
+```json
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Content-Length: 143
+    Server: Werkzeug/2.0.2 Python/3.9.6
+    Date: Thu, 16 Dec 2021 13:49:36 GMT
+
+    {
+	    "msg": "Emails sent successfully"
+    }
+
+    * Se não existirem leads na base de dados:
+    {
+	    "error": "Failed to send emails to recipients"
+    }, 401(UNAUTHORIZED)
+
+    * Se o usuário logado não tiver permissão de admin:
+    {
+	    "error": "Exclusive resource for admin."
+    }, 401(UNAUTHORIZED)
+```
 #
 
-### Listar todos os leads
+## Listar todos os leads
 
 `GET /leads`
 
@@ -107,14 +155,13 @@
         "error": "Exclusive resource for admin."
     }, 401 (UNAUTHORIZED)
 ```
-
-# Update leads
+#
+## Atualizar leads
 
 ### Request
 
 `PATCH /leads/<int:id>`
 
-#
 
 `Content-Type application/json`
 
@@ -162,14 +209,13 @@
         "error": "Lead does not exist"
     }, 404 (NOT_FOUND)
 ```
-
-# Listar lead específico
+#
+## Listar lead específico
 
 ### Request
 
 `GET /leads/<int:id>`
 
-#
 
 `Content-Type application/json`
 
@@ -219,7 +265,7 @@
 
 `DELETE /leads/<int:id>`
 
-#
+
 
 `Content-Type application/json`
 

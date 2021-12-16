@@ -1,6 +1,5 @@
-## Categories
-
-### Create category
+# Categorias
+## Create category
 
 `POST /categories`
 
@@ -42,7 +41,7 @@
 
 #
 
-### Listar todas as categories
+## Listar todas as categorias
 
 `GET /categories`
 
@@ -88,9 +87,9 @@
 
 #
 
-### Listar uma category específica
+## Listar uma categoria específica
 
-`GET /categories<int:id>`
+`GET /categories/<int:id>`
 
 ### Header:
 
@@ -133,7 +132,7 @@
 
 #
 
-### Deletar uma category específica
+## Deletar uma categoria específica
 
 `DELETE /categories<int:id>`
 
@@ -172,7 +171,7 @@
 
 #
 
-### Update category específica
+## Atualizar categoria específica
 
 `PATCH /categories<int:id>`
 

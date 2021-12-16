@@ -12,9 +12,7 @@ from app.services.helper import BaseModel
 @dataclass
 class UserLessonModel(db.Model, BaseModel):
 
-    id: int
-    user_id: int
-    lesson_id: str
+    lesson: str
     finished: bool
 
     __tablename__ = "user_lesson"

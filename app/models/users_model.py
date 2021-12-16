@@ -43,6 +43,8 @@ class UserModel(db.Model):
     verified = Column(Boolean, nullable=False, default=False)
     reset_code = Column(String)
 
+    addresses = relationship("AddressModel", backref="user", uselist=True)
+
     token = relationship('UserTokenModel', cascade='all, delete-orphan', uselist=False)
     
     lessons = relationship('LessonModel', secondary="user_lesson")

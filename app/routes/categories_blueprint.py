@@ -7,7 +7,7 @@ from app.controllers.categories_controller import (
     delete_category
 ) 
 
-bp = Blueprint('categories_bp', __name__, url_prefix='categories')
+bp = Blueprint('categories_bp', __name__, url_prefix='/categories')
 
 bp.post('')(create_category)
 bp.get('')(list_categories)

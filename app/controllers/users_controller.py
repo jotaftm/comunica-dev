@@ -1,6 +1,7 @@
 from flask import request, current_app, jsonify
 from http import HTTPStatus
 from uuid import uuid4
+from app.configs.decorators import verify_role_admin
 from app.exc import (
     InvalidCPFError, 
     InvalidDataTypeError, 
@@ -21,6 +22,18 @@ from app.services.verify_user_email import verify_user_email
 from app.models.users_model import UserModel
 from app.models.user_token_model import UserTokenModel
 from app.services.reset_password import send_reset_password_code
+
+
+@jwt_required()
+@verify_role_admin
+def list_users():
+    try:
+        users_list = UserModel.query.all()
+
+    except KeyError:
+        return {"error": "Invalid token."}, HTTPStatus.UNAUTHORIZED
+
+    return jsonify(users_list), HTTPStatus.OK
 
 
 @jwt_required()
@@ -126,24 +139,53 @@ def user_login():
 
 
 @jwt_required()
-def get_one_user():
+def get_my_data():
     try:
-        user_token = get_jwt_identity()
+        user_logged = get_jwt_identity()
 
-        found_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first_or_404()
+        found_user: UserModel = UserModel.query.filter_by(id=user_logged['id']).first_or_404()
 
     except NotFound:
         return {"error": "User not found"}, HTTPStatus.NOT_FOUND
+    
+    except KeyError:
+        return {"error": "Invalid token."}, HTTPStatus.UNAUTHORIZED
 
     return jsonify(found_user), HTTPStatus.OK
 
 
 @jwt_required()
-def update_user():
+def get_one_user(id):
+    try:
+        user_logged = get_jwt_identity()
+
+        if id != user_logged['id'] and user_logged['user_role'] == 'user':
+            raise UnauthorizedAccessError
+
+        found_user: UserModel = UserModel.query.filter_by(id=id).first_or_404()
+
+    except NotFound:
+        return {"error": "User not found"}, HTTPStatus.NOT_FOUND
+    
+    except KeyError:
+        return {"error": "Invalid token."}, HTTPStatus.UNAUTHORIZED
+
+    except UnauthorizedAccessError as e:
+        return {"error": e.message}, e.code
+
+    return jsonify(found_user), HTTPStatus.OK
+
+
+@jwt_required()
+def update_user(id):
     try:
         session = current_app.db.session
 
-        user_token = get_jwt_identity()
+        user_logged = get_jwt_identity()
+
+        if id != user_logged['id'] and user_logged['user_role'] == 'user':
+            raise UnauthorizedAccessError
+
         data = request.get_json()
         data_keys = data.keys()
         valid_keys = ["email",
@@ -157,7 +199,7 @@ def update_user():
             raise MandatoryKeyError('current_password')
         
         current_password = data.pop("current_password")
-        updated_user: UserModel = UserModel.query.filter_by(id=user_token['id']).first()
+        updated_user: UserModel = UserModel.query.filter_by(id=id).first()
 
         if not updated_user:
             raise InvalidUser
@@ -173,7 +215,7 @@ def update_user():
         session.commit()
 
         found_user: UserModel = UserModel.query.filter_by(
-            id=user_token['id']).first()
+            id=id).first()
 
     except InvalidDataTypeError as e:
         return {"error": e.message}, e.code
@@ -198,6 +240,12 @@ def update_user():
 
     except IntegrityError:
         return {"error": "User already exists."}, HTTPStatus.CONFLICT
+
+    except KeyError:
+        return {"error": "Invalid token."}, HTTPStatus.UNAUTHORIZED
+
+    except UnauthorizedAccessError as e:
+        return {"error": e.message}, e.code
     
     return jsonify(found_user), HTTPStatus.OK
 
@@ -246,7 +294,7 @@ def delete_user(id):
         user_logged = get_jwt_identity()
         session = current_app.db.session
 
-        if id != user_logged['id']:
+        if id != user_logged['id'] and user_logged['user_role'] == 'user':
             raise UnauthorizedAccessError
 
         user_to_delete : UserModel = UserModel.query.filter_by(id=id).first()
@@ -259,6 +307,9 @@ def delete_user(id):
         
     except InvalidUser as e:
         return {"error": e.message}, e.code
+    
+    except KeyError:
+        return {"error": "Invalid token."}, HTTPStatus.UNAUTHORIZED
 
     except UnauthorizedAccessError as e:
         return {"error": e.message}, e.code

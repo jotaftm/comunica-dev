@@ -8,7 +8,6 @@ from app.models.users_model import UserModel
 
 @dataclass
 class AddressModel(db.Model):
-
     id: int
     zip_code: str
     address: str
@@ -17,7 +16,6 @@ class AddressModel(db.Model):
     state: str
     country: str
     user_id: int
-    user: dict
     
     __tablename__ = 'addresses'
     
@@ -30,10 +28,6 @@ class AddressModel(db.Model):
     country = Column(String, nullable=False)
     user_id = Column(Integer, db.ForeignKey('users.id'), nullable=False)
 
-    user = relationship(
-      'UserModel',
-      backref=backref('user', uselist=False)
-    )
 
     @validates('zip_code', 'address', 'number', 'city', 'state', 'country')
     def validate_values(self, key, value):

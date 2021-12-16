@@ -36,7 +36,7 @@ def list_users():
     return jsonify(users_list), HTTPStatus.OK
 
 
-# @jwt_required()
+@jwt_required()
 def create_basic_user():
     try:
         session = current_app.db.session

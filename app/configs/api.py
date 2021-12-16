@@ -30,9 +30,10 @@ def init_app(app: Flask) -> None:
     api.add_resource(CategoryRetrieveResource, "/api/categories/<int:category_id>", endpoint="CATEGORY_ID")
 
 
-    from app.views.users_view import UserResource, UserRetrieveResource, UserBasicResource, UserValidateTokenResource, UserLoginResource, UserConfirmPasswordResetResource, UserPasswordResetResource
+    from app.views.users_view import UserResource, UserRetrieveResource, UserDataResource, UserBasicResource, UserValidateTokenResource, UserLoginResource, UserConfirmPasswordResetResource, UserPasswordResetResource
     api.add_resource(UserResource, "/api/users", endpoint="USERS")
     api.add_resource(UserBasicResource, "/api/users/basic", endpoint="USERS_BASIC_NEW")
+    api.add_resource(UserDataResource, "/api/users/personal", endpoint="USERS_PERSONAL_DATA")
     api.add_resource(UserRetrieveResource, "/api/users/<int:user_id>", endpoint="USER_ID")
     api.add_resource(UserLoginResource, "/api/users/login", endpoint="USER_LOGIN")
     api.add_resource(UserValidateTokenResource, "/api/users/validate/<token>", endpoint="USER_VALIDATE_TOKEN")

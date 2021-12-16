@@ -2,14 +2,21 @@ from app.exc import DataAlreadyRegistered, DataNotFound, EmailVerifiedError, Inv
 from flask_restful import Resource
 from flask import make_response
 from flask_jwt_extended import jwt_required
+from http import HTTPStatus
 
 from app.services.users_service import UserService
+from app.configs.decorators import verify_role_admin
 
 
 class UserResource(Resource):
 
+    @jwt_required()
+    @verify_role_admin
     def get(self):
-        return make_response(UserService.get_all())
+        try:
+            return make_response(UserService.get_all())
+        except KeyError:
+            return {"error": "Invalid token."}, HTTPStatus.UNAUTHORIZED
 
 
 class UserRetrieveResource(Resource):
@@ -20,9 +27,11 @@ class UserRetrieveResource(Resource):
             return make_response(UserService.get_by_id(user_id))
         except DataNotFound as e:
             return e.message, e.code
+        except KeyError:
+            return {"error": "Invalid token."}, HTTPStatus.UNAUTHORIZED
         except UnauthorizedAccessError as e:
             return e.message, e.code
-    
+
 
     @jwt_required()
     def patch(self, user_id):
@@ -34,6 +43,8 @@ class UserRetrieveResource(Resource):
             return e.message, e.code
         except InvalidPassword as e:
             return e.message, e.code
+        except KeyError:
+            return {"error": "Invalid token."}, HTTPStatus.UNAUTHORIZED
 
     
     @jwt_required()
@@ -42,6 +53,20 @@ class UserRetrieveResource(Resource):
             return make_response(UserService.delete(user_id))
         except DataNotFound as e:
             return e.message, e.code
+        except UnauthorizedAccessError as e:
+            return e.message, e.code
+
+
+class UserDataResource(Resource):
+    
+    @jwt_required()
+    def get(self):
+        try:
+            return make_response(UserService.get_my_data())
+        except DataNotFound as e:
+            return e.message, e.code
+        except KeyError:
+            return {"error": "Invalid token."}, HTTPStatus.UNAUTHORIZED
         except UnauthorizedAccessError as e:
             return e.message, e.code
 

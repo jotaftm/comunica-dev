@@ -65,6 +65,17 @@ class UserService(BaseServices):
 
 
     @staticmethod
+    def get_my_data():
+        user_logged = get_jwt_identity()
+
+        found_user: UserModel = UserModel.query.filter_by(id=user_logged['id']).first()
+        if not found_user:
+            raise DataNotFound('User')
+    
+        return jsonify(found_user), HTTPStatus.OK
+
+
+    @staticmethod
     def verify_user(token):
         token = UserTokenModel.query.filter_by(token=token).first()
 
@@ -165,7 +176,7 @@ class UserService(BaseServices):
     def delete(user_id) -> UserModel:
         user_logged = get_jwt_identity()
 
-        if user_id != user_logged['id']:
+        if id != user_logged['id'] and user_logged['user_role'] == 'user':
             raise UnauthorizedAccessError
 
         user_to_delete : UserModel = UserModel.query.filter_by(id=user_id).first()

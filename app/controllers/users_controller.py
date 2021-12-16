@@ -36,7 +36,7 @@ def list_users():
     return jsonify(users_list), HTTPStatus.OK
 
 
-@jwt_required()
+# @jwt_required()
 def create_basic_user():
     try:
         session = current_app.db.session
@@ -98,8 +98,8 @@ def create_basic_user():
     except IntegrityError:
         return {"error": "User already exists."}, HTTPStatus.CONFLICT
 
-    except TypeError:
-        return {"error": "Mandatory keys: email, name, cpf and password."}, HTTPStatus.BAD_REQUEST
+    except TypeError as e:
+        return {"error": e.args[0][0:-13] + "to create a user."}, HTTPStatus.BAD_REQUEST
 
     return jsonify(new_user), HTTPStatus.CREATED
 

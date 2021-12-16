@@ -2,12 +2,16 @@ from http import HTTPStatus
 from app.exc import DataAlreadyRegistered, DataNotFound, InvalidEmailError
 from flask_restful import Resource
 from flask import make_response
+from flask_jwt_extended import jwt_required
 
 from app.services.leads_service import LeadService
+from app.configs.decorators import verify_role_admin
 
 
 class LeadResource(Resource):
 
+    @jwt_required()
+    @verify_role_admin()
     def get(self):
         return make_response(LeadService.get_all())
 
@@ -23,6 +27,8 @@ class LeadResource(Resource):
 
 class LeadRetrieveResource(Resource):
 
+    @jwt_required()
+    @verify_role_admin()
     def get(self, lead_id):
         try:
             return make_response(LeadService.get_by_id(lead_id))
@@ -30,6 +36,8 @@ class LeadRetrieveResource(Resource):
             return e.message, HTTPStatus.NOT_FOUND
     
 
+    @jwt_required()
+    @verify_role_admin()
     def patch(self, lead_id):
         try:
             return make_response(LeadService.update(lead_id))
@@ -45,5 +53,7 @@ class LeadRetrieveResource(Resource):
 
 
 class LeadSendEmailResource(Resource):
+    @jwt_required()
+    @verify_role_admin()
     def send(self):
         return make_response(LeadService.newsletter_info())

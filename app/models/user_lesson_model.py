@@ -6,10 +6,11 @@ from sqlalchemy.sql.sqltypes import (
     Boolean,
     Integer
 )
+from app.services.helper import BaseModel
 
 
 @dataclass
-class UserLessonModel(db.Model):
+class UserLessonModel(db.Model, BaseModel):
 
     lesson: dict
     finished: bool

@@ -5,9 +5,12 @@ from dataclasses import dataclass
 from app.exc import InvalidDataTypeError, InvalidZipCodeError
 
 from app.models.users_model import UserModel
+from app.services.helper import BaseModel
+
 
 @dataclass
-class AddressModel(db.Model):
+class AddressModel(db.Model, BaseModel):
+
     id: int
     zip_code: str
     address: str
@@ -33,8 +36,10 @@ class AddressModel(db.Model):
     def validate_values(self, key, value):
         if type(value) is not str:
             raise InvalidDataTypeError(key, type(value).__name__, "string")
-        if key == 'zip_code' and len(value) != 8:
-            raise InvalidZipCodeError(value)
+            
+        if key == 'zip_code':
+            if not value.isnumeric() or len(value) != 8:
+                raise InvalidZipCodeError
 
         return value
 

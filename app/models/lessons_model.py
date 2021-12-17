@@ -8,10 +8,11 @@ from sqlalchemy.sql.sqltypes import (
     Boolean,
     Text,
 )
+from app.services.helper import BaseModel
 
 
 @dataclass
-class LessonModel(db.Model):
+class LessonModel(db.Model, BaseModel):
 
     id: int
     title: str

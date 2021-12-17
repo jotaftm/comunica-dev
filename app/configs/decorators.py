@@ -17,4 +17,3 @@ def verify_role_admin(func):
             return func(*args, **kwargs)
 
     return security_func
-    

@@ -1,3 +1,4 @@
+
 from dataclasses import dataclass
 from sqlalchemy import (
     Column,
@@ -6,11 +7,10 @@ from sqlalchemy import (
 )
 
 from app.configs.database import db
-from app.services.helper import BaseModel
 
 
 @dataclass
-class CaptchaModel(db.Model, BaseModel):
+class CaptchaModel(db.Model):
     url_captcha: str
 
     __tablename__ = "captchas"

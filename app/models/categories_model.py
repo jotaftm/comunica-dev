@@ -8,11 +8,9 @@ from sqlalchemy.sql.sqltypes import (
     Text
 )
 
-from app.services.helper import BaseModel
-
 
 @dataclass
-class CategoryModel(db.Model, BaseModel):
+class CategoryModel(db.Model):
 
     id: int
     type: str

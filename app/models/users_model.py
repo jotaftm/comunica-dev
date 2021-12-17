@@ -13,11 +13,10 @@ from sqlalchemy import (
 
 from app.configs.database import db
 from app.exc import InvalidCPFError, InvalidEmailError, InvalidDataTypeError, InvalidPassword
-from app.services.helper import BaseModel
 
 
 @dataclass
-class UserModel(db.Model, BaseModel):
+class UserModel(db.Model):
     id: int
     email: str
     name: str
